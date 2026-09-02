@@ -6,11 +6,11 @@
   <title>Polish Chad Rankings</title>
   <style>
     :root {
-      --bg: #0d0e12;
-      --card-bg: #16181e;
+      --bg: radial-gradient(circle at top, #2e1050 0%, #0d0e12 100%);
+      --card-bg: rgba(22, 24, 30, 0.85);
       --accent: #d4af37; /* Złoty akcent */
       --text: #ffffff;
-      --subtext: #a0a5b5;
+      --subtext: #babbbe;
     }
 
     * {
@@ -21,7 +21,7 @@
     }
 
     body {
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
       display: flex;
       justify-content: center;
@@ -30,15 +30,15 @@
 
     .app-container {
       width: 100%;
-      max-width: 480px; /* Zoptymalizowane pod telefony */
+      max-width: 480px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     header {
       text-align: center;
-      padding: 16px 0;
+      padding: 12px 0;
       border-bottom: 2px solid #22252e;
     }
 
@@ -56,8 +56,35 @@
     h1 {
       font-size: 1.4rem;
       letter-spacing: 1px;
-      color: var(--accent);
+      color: var(--text);
       text-transform: uppercase;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(46, 50, 61, 0.6);
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .tab {
+      color: var(--subtext);
+      text-decoration: none;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab.active {
+      color: var(--text);
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .tab-icon {
+      font-size: 1.2rem;
     }
 
     .rankings-list {
@@ -73,13 +100,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border: 1px solid #22252e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-
-    .card:active {
-      transform: scale(0.98);
+      position: relative;
     }
 
     .card-left {
@@ -95,93 +118,45 @@
       width: 24px;
     }
 
-    .avatar {
+    .avatar-locked {
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: #2a2d37;
-      object-fit: cover;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: rgba(255, 255, 255, 0.3);
     }
 
     .info h3 {
       font-size: 1rem;
       margin-bottom: 2px;
+      color: #dfdfdf;
     }
 
     .info p {
       font-size: 0.75rem;
       color: var(--subtext);
+      text-transform: lowercase;
     }
 
-    .score {
+    .score-locked {
       font-weight: bold;
       font-size: 0.95rem;
-      background: #22252e;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.3);
       padding: 6px 10px;
       border-radius: 8px;
     }
 
-    /* Modal - Profile Overlay */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(4px);
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 100;
-    }
-
-    .modal-content {
-      background: var(--card-bg);
-      width: 100%;
-      max-width: 400px;
-      border-radius: 16px;
-      padding: 20px;
-      position: relative;
-      border: 1px solid var(--accent);
-      text-align: center;
-    }
-
-    .close-btn {
+    .lock-icon {
       position: absolute;
-      top: 12px;
-      right: 16px;
-      font-size: 1.5rem;
-      background: none;
-      border: none;
-      color: var(--subtext);
-      cursor: pointer;
-    }
-
-    .modal-avatar {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      margin: 10px auto;
-      border: 2px solid var(--accent);
-    }
-
-    .stats {
-      margin-top: 16px;
-      display: flex;
-      justify-content: space-around;
-      background: #0d0e12;
-      padding: 12px;
-      border-radius: 10px;
-    }
-
-    .stat-item h4 {
-      font-size: 0.75rem;
-      color: var(--subtext);
-    }
-
-    .stat-item p {
-      font-weight: bold;
-      margin-top: 4px;
-      color: var(--accent);
+      top: 10px;
+      right: 12px;
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
@@ -193,80 +168,35 @@
         <span class="logo-icon">🗿</span>
         <h1>Polish Chad</h1>
       </div>
+      <div class="tabs">
+        <a href="#" class="tab active"><span class="tab-icon">🏠</span> Domek</a>
+        <a href="#" class="tab"><span class="tab-icon">📋</span> Rankings</a>
+      </div>
     </header>
 
     <main class="rankings-list" id="rankings"></main>
   </div>
 
-  <div class="modal" id="profileModal">
-    <div class="modal-content">
-      <button class="close-btn" onclick="closeModal()">&times;</button>
-      <img src="" id="modalImg" class="modal-avatar" alt="Chad">
-      <h2 id="modalName"></h2>
-      <p id="modalTitle" style="color: var(--subtext); font-size: 0.85rem; margin-top: 4px;"></p>
-
-      <div class="stats">
-        <div class="stat-item">
-          <h4>Ranga</h4>
-          <p id="modalRank"></p>
-        </div>
-        <div class="stat-item">
-          <h4>Aura Score</h4>
-          <p id="modalScore"></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // Dane dla Top 10
-    const chads = [
-      { id: 1, name: "Chad #1", title: "Legenda", score: "99.9", img: "https://via.placeholder.com/150/d4af37/ffffff?text=1" },
-      { id: 2, name: "Chad #2", title: "Kulturysta", score: "98.4", img: "https://via.placeholder.com/150/22252e/ffffff?text=2" },
-      { id: 3, name: "Chad #3", title: "Biznesmen", score: "97.1", img: "https://via.placeholder.com/150/22252e/ffffff?text=3" },
-      { id: 4, name: "Chad #4", title: "Programista 15k", score: "95.0", img: "https://via.placeholder.com/150/22252e/ffffff?text=4" },
-      { id: 5, name: "Chad #5", title: "Aktor", score: "94.2", img: "https://via.placeholder.com/150/22252e/ffffff?text=5" },
-      { id: 6, name: "Chad #6", title: "Model", score: "93.8", img: "https://via.placeholder.com/150/22252e/ffffff?text=6" },
-      { id: 7, name: "Chad #7", title: "Sportowiec", score: "92.1", img: "https://via.placeholder.com/150/22252e/ffffff?text=7" },
-      { id: 8, name: "Chad #8", title: "Streamer", score: "90.5", img: "https://via.placeholder.com/150/22252e/ffffff?text=8" },
-      { id: 9, name: "Chad #9", title: "Szef", score: "89.0", img: "https://via.placeholder.com/150/22252e/ffffff?text=9" },
-      { id: 10, name: "Chad #10", title: "Koneser", score: "88.2", img: "https://via.placeholder.com/150/22252e/ffffff?text=10" }
-    ];
+    // Generowanie listy Top 10 w trybie "Do ujawnienia"
+    const rankingsContainer = document.getElementById("rankings");
 
-    // Generowanie listy
-    const container = id => document.getElementById(id);
-    const rankingsContainer = container("rankings");
-
-    chads.forEach(chad => {
+    for (let i = 1; i <= 10; i++) {
       const card = document.createElement("div");
       card.className = "card";
-      card.onclick = () => openModal(chad);
       card.innerHTML = `
         <div class="card-left">
-          <span class="rank">#${chad.id}</span>
-          <img src="${chad.img}" class="avatar" alt="${chad.name}">
+          <span class="rank">#${i}</span>
+          <div class="avatar-locked">?</div>
           <div class="info">
-            <h3>${chad.name}</h3>
-            <p>${chad.title}</p>
+            <h3>DO UJAWNIENIA</h3>
+            <p>tajemniczy chad</p>
           </div>
         </div>
-        <div class="score">${chad.score}</div>
+        <div class="score-locked">99.9</div>
+        <span class="lock-icon">🔒</span>
       `;
       rankingsContainer.appendChild(card);
-    });
-
-    // Obsługa Modala
-    function openModal(chad) {
-      container("modalName").innerText = chad.name;
-      container("modalTitle").innerText = chad.title;
-      container("modalRank").innerText = `#${chad.id}`;
-      container("modalScore").innerText = chad.score;
-      container("modalImg").src = chad.img;
-      container("profileModal").style.display = "flex";
-    }
-
-    function closeModal() {
-      container("profileModal").style.display = "none";
     }
   </script>
 </body>
