@@ -6,11 +6,13 @@
   <title>Polish Chad Rankings</title>
   <style>
     :root {
-      --bg: radial-gradient(circle at top, #2e1050 0%, #0d0e12 100%);
-      --card-bg: rgba(22, 24, 30, 0.85);
-      --accent: #d4af37; /* Złoty akcent */
+      --bg: radial-gradient(circle at top, #1a0b2e 0%, #090a0f 100%);
+      --card-bg: #14161d;
+      --accent-gold: #f59e0b;
+      --purple-accent: #a855f7;
+      --orange-accent: #ff9800;
       --text: #ffffff;
-      --subtext: #babbbe;
+      --subtext: #8e95a5;
     }
 
     * {
@@ -18,14 +20,19 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     body {
-      background: var(--bg);
+      background: #090a0f;
+      background-image: var(--bg);
+      background-attachment: fixed;
       color: var(--text);
       display: flex;
       justify-content: center;
-      padding: 12px;
+      min-height: 100vh;
     }
 
     .app-container {
@@ -33,28 +40,37 @@
       max-width: 480px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      padding-bottom: 24px;
     }
 
     header {
-      text-align: center;
-      padding: 12px 0;
-      border-bottom: 2px solid #22252e;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(13, 14, 18, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
 
     .logo-container {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .logo-icon {
-      font-size: 2rem;
+      font-size: 1.5rem;
     }
 
     h1 {
-      font-size: 1.4rem;
+      font-size: 1.1rem;
+      font-weight: 800;
       letter-spacing: 1px;
       color: var(--text);
       text-transform: uppercase;
@@ -62,29 +78,68 @@
 
     .tabs {
       display: flex;
-      justify-content: space-around;
-      background: rgba(46, 50, 61, 0.6);
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 10px;
+      justify-content: center;
+      width: 100%;
     }
 
     .tab {
-      color: var(--subtext);
+      color: var(--text);
       text-decoration: none;
-      font-weight: bold;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 6px 16px;
+      border-bottom: 2px solid var(--orange-accent);
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .tab.active {
-      color: var(--text);
-      border-bottom: 2px solid var(--accent);
+    .content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
-    .tab-icon {
-      font-size: 1.2rem;
+    .hero-section {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+    }
+
+    .badge-updated {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--accent-gold);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .hero-description {
+      font-size: 0.85rem;
+      color: var(--subtext);
+      line-height: 1.4;
+      max-width: 320px;
+    }
+
+    .badge-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d1d5db;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+      border-radius: 20px;
     }
 
     .rankings-list {
@@ -95,14 +150,29 @@
 
     .card {
       background: var(--card-bg);
-      border-radius: 12px;
-      padding: 12px 16px;
+      border-radius: 14px;
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       cursor: pointer;
-      position: relative;
+      transition: all 0.15s ease;
+    }
+
+    /* Rozjaśnienie okienka na biało + fioletowy tekst i strzałka */
+    .card:active {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+    }
+
+    .card:active .name {
+      color: var(--purple-accent);
+    }
+
+    .card:active .arrow {
+      color: var(--purple-accent);
     }
 
     .card-left {
@@ -111,52 +181,143 @@
       gap: 12px;
     }
 
-    .rank {
-      font-weight: 800;
-      font-size: 1.1rem;
-      color: var(--accent);
-      width: 24px;
-    }
-
-    .avatar-locked {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
+    .rank-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
-      color: rgba(255, 255, 255, 0.3);
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
     }
 
-    .info h3 {
-      font-size: 1rem;
-      margin-bottom: 2px;
-      color: #dfdfdf;
+    /* Metaliczne gradienty dla Top 3 */
+    .rank-1 {
+      background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #996515 100%);
+      color: #000000;
+      font-weight: 900;
     }
 
-    .info p {
+    .rank-2 {
+      background: linear-gradient(135deg, #ffffff 0%, #b4c0d0 50%, #6b7c96 100%);
+      color: #000000;
+      font-weight: 900;
+    }
+
+    .rank-3 {
+      background: linear-gradient(135deg, #f8a571 0%, #b85d19 50%, #6e3006 100%);
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--subtext);
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      transition: color 0.15s ease;
+    }
+
+    .subtext {
       font-size: 0.75rem;
       color: var(--subtext);
-      text-transform: lowercase;
+      margin-top: 2px;
     }
 
-    .score-locked {
-      font-weight: bold;
-      font-size: 0.95rem;
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.3);
-      padding: 6px 10px;
+    .card-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .trend-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 8px;
       border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--subtext);
     }
 
-    .lock-icon {
+    .arrow {
+      font-size: 1.3rem;
+      color: #4b5563;
+      font-weight: bold;
+      transition: color 0.15s ease;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: #14161d;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 18px;
+      padding: 24px;
+      position: relative;
+      border: 1px solid var(--purple-accent);
+      text-align: center;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+    }
+
+    .close-btn {
       position: absolute;
-      top: 10px;
-      right: 12px;
-      font-size: 1.2rem;
-      color: rgba(255, 255, 255, 0.2);
+      top: 12px;
+      right: 16px;
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--subtext);
+      cursor: pointer;
+    }
+
+    .modal-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 auto 12px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      border: 2px solid var(--purple-accent);
+    }
+
+    .modal-body {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: var(--subtext);
+      min-height: 30px;
     }
   </style>
 </head>
@@ -165,36 +326,76 @@
   <div class="app-container">
     <header>
       <div class="logo-container">
-        <h1>Polish Chad rankings</h1>
+        <span class="logo-icon">🗿</span>
+        <h1>POLISH CHAD RANKINGS</h1>
       </div>
       <div class="tabs">
-        <a href="#" class="tab"><span class="tab-icon">📋</span> Rankings</a>
+        <a href="#" class="tab">📋 Rankings</a>
       </div>
     </header>
 
-    <main class="rankings-list" id="rankings"></main>
+    <main class="content">
+      <section class="hero-section">
+        <div class="badge-updated">⏱️ Cotygodniowa aktualizacja</div>
+        <p class="hero-description">
+          Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.
+        </p>
+        <div class="badge-verified">🎗️ Zweryfikowano przez Polish Chad Association</div>
+      </section>
+
+      <section class="rankings-list" id="rankings"></section>
+    </main>
+  </div>
+
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <div class="modal-avatar">❓</div>
+      <h2 id="modalName">DO UJAWNIENIA</h2>
+      <p id="modalRank" style="color: var(--orange-accent); font-weight: bold; margin-top: 4px;"></p>
+      <div class="modal-body">
+        <p>Opis profilu pojawi się po oficjalnym ujawnieniu.</p>
+      </div>
+    </div>
   </div>
 
   <script>
-    // Generowanie listy Top 10 w trybie "Do ujawnienia"
     const rankingsContainer = document.getElementById("rankings");
 
     for (let i = 1; i <= 10; i++) {
       const card = document.createElement("div");
       card.className = "card";
+      card.onclick = () => openModal(i);
+
+      let rankClass = "rank-box";
+      if (i === 1) rankClass += " rank-1";
+      else if (i === 2) rankClass += " rank-2";
+      else if (i === 3) rankClass += " rank-3";
+
       card.innerHTML = `
         <div class="card-left">
-          <span class="rank">#${i}</span>
-          <div class="avatar-locked">?</div>
+          <div class="${rankClass}">${i}</div>
+          <div class="avatar">❓</div>
           <div class="info">
-            <h3>DO UJAWNIENIA</h3>
-            <p>tajemniczy chad</p>
+            <span class="name">DO UJAWNIENIA</span>
+            <span class="subtext">tajemniczy chad</span>
           </div>
         </div>
-        <div class="score-locked">99.9</div>
-        <span class="lock-icon">🔒</span>
+        <div class="card-right">
+          <span class="trend-pill">🔒</span>
+          <span class="arrow">&rsaquo;</span>
+        </div>
       `;
       rankingsContainer.appendChild(card);
+    }
+
+    function openModal(rank) {
+      document.getElementById("modalRank").innerText = `#${rank} miejsce`;
+      document.getElementById("profileModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("profileModal").style.display = "none";
     }
   </script>
 </body>
