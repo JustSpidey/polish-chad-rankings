@@ -693,4 +693,49 @@
       }
     }
 
-    functio
+    function closeModal() {
+      document.getElementById("profileModal").style.display = "none";
+      activeChadId = null;
+    }
+
+    // Gwarantowane załadowanie interfejsu niezależnie od sieci
+    renderRankings();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // Ładowanie bazy danych Firebase
+    try {
+      if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+
+        db.ref('votes').on('value', function(snapshot) {
+          const votesData = snapshot.val() || {};
+          
+          chadsData.forEach(function(chad) {
+            chad.votes = votesData[chad.id] || 0;
+          });
+
+          chadsData.sort(function(a, b) { return b.votes - a.votes; });
+
+          chadsData.forEach(function(chad, index) {
+            chad.rank = index + 1;
+          });
+
+          renderRankings();
+
+          if (activeChadId !== null) {
+            const activeChad = chadsData.find(function(c) { return c.id === activeChadId; });
+            if (activeChad) {
+              document.getElementById("modalStatRank").innerText = "#" + activeChad.rank;
+              document.getElementById("modalStatVotes").innerText = activeChad.votes;
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.log("Firebase status: offline/blocked");
+    }
+  </script>
+</body>
+</html>
