@@ -71,16 +71,23 @@
     }
 
     .header-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: rgba(168, 85, 247, 0.15);
-      border: 1px solid rgba(168, 85, 247, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-    }
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Docięcie zdjęcia do zaokrąglonych rogów */
+}
+
+.header-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+    
 
     h1 {
       font-size: 1rem;
@@ -654,7 +661,9 @@
   <div class="app-container">
     <header>
       <div class="header-top">
-        <div class="header-logo">🗿</div>
+        <div class="header-logo">
+  <img src="MORPH.jpg" alt="Logo">
+        </div>
         <h1>POLISH CHAD RANKINGS</h1>
         <div class="lang-switch">
           <span class="flag-btn active" id="flag-pl" onclick="setLanguage('pl')">🇵🇱</span>
@@ -663,6 +672,8 @@
       </div>
 
       <div class="tabs">
+  <a href="#" class="tab active" id="txt-tab-rankings">📋 Rankingi</a>
+      </div>
         <a href="#" class="tab active">📋 Rankings</a>
       </div>
     </header>
@@ -710,7 +721,7 @@
       <!-- Sekcja Hall of Fame -->
       <section class="hof-section">
         <div class="hof-header">
-          <h2 class="hof-title" id="txt-hof-title">👑 Sala Sław</h2>
+          <h2 class="hof-title" id="txt-hof-title">👑 Hall of Fame</h2>
           <p class="hof-subtitle" id="txt-hof-sub">Legendy wycofane z aktywnego rankingu.</p>
         </div>
         <div id="hofContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
@@ -813,7 +824,7 @@
       { id: "chad_7", rank: 7, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "88.2", votes: 0, descPl: "", descEn: "" },
       { id: "chad_8", rank: 8, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "86.0", votes: 0, descPl: "", descEn: "" },
       { id: "chad_9", rank: 9, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "84.7", votes: 0, descPl: "", descEn: "" },
-      { id: "chad_10", rank: 10, locked: false, name: "Maksym Wołoszyn", titlePl: "Panienka lekkich obyczajów", titleEn: "A lady of easy virtue", img: "MW.jpg", aura: "82.0", votes: 0, descPl: "Maksym Wołoszyn zasłynął z swojej niewarygodnej pracy. W swoim stażu spędził 10 lat oraz zadowolił wiele klientów. Niestety Maksym skończył swoją karierę i przeszedł na emeryturę.", descEn: "Maksym Wołoszyn became renowned for his exceptional work. Over the course of his ten-year career, he satisfied many clients. Unfortunately, Maksym has ended his career and retired." }
+      { id: "chad_10", rank: 10, locked: false, name: "Maksym Wołczyk", titlePl: "Panienka lekkich obyczajów", titleEn: "A lady of easy virtue", img: "MW.jpg", aura: "82.0", votes: 0, descPl: "Maksym Wołczyk zasłynął z swojej niewarygodnej pracy. W swoim stażu spędził 10 lat oraz zadowolił wiele klientów. Niestety Maksym skończył swoją karierę i przeszedł na emeryturę.", descEn: "Maksym Wołczyk became renowned for his exceptional work. Over the course of his ten-year career, he satisfied many clients. Unfortunately, Maksym has ended his career and retired." }
     ];
 
     const hallOfFameData = [
@@ -825,6 +836,15 @@
         img: "MP.jpg",
         descPl: "Symbol niezłomnego etosu pracy.",
         descEn: "A symbol of an unwavering work ethic."
+      },
+      {
+        id: "hof_2",
+        name: "Robert Makłowicz",
+        rolePl: "Gladiator kultury i sztuki kulinarnej",
+        roleEn: "Gladiator of culture and culinary art",
+        img: "RM.jpg",
+        descPl: "Symbol bezpretensjonalnej klasy i radości z życia",
+        descEn: "A symbol of unpretentious class and joy of life."
       }
     ];
 
@@ -846,7 +866,9 @@
         pollBtnVoted: "✅ Zagłosowano w ankiecie",
         hofTitle: "👑 Sala Sław",
         hofSub: "Legendy wycofane z aktywnego rankingu.",
-        legendBadge: "Legenda"
+        legendBadge: "Legenda",
+        pollBadge: "ANKIETA SPOŁECZNA",
+        tabRankings: "📋 Rankingi"
       },
       en: {
         timerPrefix: "⏱️ Update in: ",
@@ -865,7 +887,9 @@
         pollBtnVoted: "✅ Voted in poll",
         hofTitle: "👑 Hall of Fame",
         hofSub: "Legends who have been retired from the active rankings.",
-        legendBadge: "Legend"
+        legendBadge: "Legend",
+        pollBadge: "COMMUNITY POLL".
+        tabRankings: " Rankings"
       }
     };
 
@@ -1128,7 +1152,9 @@
       document.getElementById("txt-poll-title").innerText = i18n[lang].pollTitle;
       document.getElementById("txt-hof-title").innerText = i18n[lang].hofTitle;
       document.getElementById("txt-hof-sub").innerText = i18n[lang].hofSub;
-
+      document.getElementById("txt-poll-badge").innerText = i18n[lang].pollBadge;
+      document.getElementById("txt-tab-rankings").innerText = i18n[lang].tabRankings;
+           
       setupPollUI();
       renderRankings();
       renderHallOfFame();
