@@ -1,285 +1,696 @@
-<script>
-  // ===================================================
-  // 1. USTAWIENIA FIREBASE
-  // ===================================================
-  const firebaseConfig = {
-    apiKey: "AlzaSyCJDcay4pyauLgGQLloTrf1kp2GjXoQmTA",
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polish Chad Rankings</title>
+
+  <!-- Biblioteki Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --bg: radial-gradient(circle at top, #1a0b2e 0%, #090a0f 100%);
+      --card-bg: #14161d;
+      --accent-gold: #f59e0b;
+      --purple-accent: #a855f7;
+      --orange-accent: #ff9800;
+      --text: #ffffff;
+      --subtext: #8e95a5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: #090a0f;
+      background-image: var(--bg);
+      background-attachment: fixed;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 24px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(13, 14, 18, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text);
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .flag-btn {
+      font-size: 1.3rem;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: all 0.2s ease;
+      filter: grayscale(40%);
+    }
+
+    .flag-btn.active {
+      opacity: 1;
+      transform: scale(1.15);
+      filter: grayscale(0%);
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .tab {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 4px 16px;
+      border-bottom: 2px solid var(--orange-accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hero-section {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+    }
+
+    .badge-updated {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--accent-gold);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .hero-description {
+      font-size: 0.85rem;
+      color: var(--subtext);
+      line-height: 1.4;
+      max-width: 320px;
+    }
+
+    .badge-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d1d5db;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+
+    .rankings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.15s ease;
+    }
+
+    .card:active {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rank-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .rank-1 {
+      background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #996515 100%);
+      color: #000000;
+      font-weight: 900;
+    }
+
+    .rank-2 {
+      background: linear-gradient(135deg, #ffffff 0%, #b4c0d0 50%, #6b7c96 100%);
+      color: #000000;
+      font-weight: 900;
+    }
+
+    .rank-3 {
+      background: linear-gradient(135deg, #f8a571 0%, #b85d19 50%, #6e3006 100%);
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--subtext);
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .subtext {
+      font-size: 0.75rem;
+      color: var(--subtext);
+      margin-top: 2px;
+    }
+
+    .card-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .aura-pill {
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-gold);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .aura-pill.locked {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--subtext);
+      border: none;
+    }
+
+    .arrow {
+      font-size: 1.3rem;
+      color: #4b5563;
+      font-weight: bold;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: #14161d;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 18px;
+      padding: 24px;
+      position: relative;
+      border: 1px solid var(--purple-accent);
+      text-align: center;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--subtext);
+      cursor: pointer;
+    }
+
+    .modal-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 auto 12px auto;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      border: 2px solid var(--purple-accent);
+    }
+
+    .modal-stats {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 12px;
+      margin: 12px 0;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-title {
+      font-size: 0.7rem;
+      color: var(--subtext);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      margin-top: 2px;
+    }
+
+    .vote-btn {
+      background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+    }
+
+    .vote-btn.voted {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--subtext);
+      box-shadow: none;
+    }
+
+    .modal-body {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--subtext);
+      line-height: 1.4;
+      min-height: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <div class="header-top">
+        <div class="header-logo">🗿</div>
+        <h1>POLISH CHAD RANKINGS</h1>
+        <div class="lang-switch">
+          <span class="flag-btn active" id="flag-pl" onclick="setLanguage('pl')">🇵🇱</span>
+          <span class="flag-btn" id="flag-en" onclick="setLanguage('en')">🇬🇧</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <a href="#" class="tab">📋 Rankings</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="hero-section">
+        <div class="badge-updated" id="timer-text">⏱️ Ładowanie timera...</div>
+        <p class="hero-description" id="txt-hero">
+          Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.
+        </p>
+        <div class="badge-verified" id="txt-verified">🎗️ Zweryfikowano przez Polish Chad Association</div>
+      </section>
+
+      <section class="rankings-list" id="rankings"></section>
+    </main>
+  </div>
+
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <div id="modalAvatarContainer"></div>
+      <h2 id="modalName"></h2>
+      <p id="modalTitle" style="color: var(--subtext); font-size: 0.8rem; margin-top: 2px;"></p>
+      
+      <div class="modal-stats">
+        <div class="stat-box">
+          <span class="stat-title" id="st-rank">Ranga</span>
+          <span class="stat-value" id="modalStatRank">#1</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-title">Aura Score</span>
+          <span class="stat-value" id="modalStatAura">99.9</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-title" id="st-votes">Głosy</span>
+          <span class="stat-value" id="modalStatVotes">0</span>
+        </div>
+      </div>
+
+      <button class="vote-btn" id="btnVote" onclick="castVote()">
+        <span id="txt-vote">🔥 Daj Głos</span>
+      </button>
+
+      <div class="modal-body" id="modalDesc"></div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AlzaSyCJDcay4pyauLgGQLloTrf1kp2GjXoQmTA",
       authDomain: "https://polish-chad-rankings.firebaseapp.com",
       databaseURL: "https://polish-chad-rankings-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "polish-chad-rankings",
       storageBucket: "https://polish-chad-rankings.firebasestorage.app",
       messagingSenderId: "941798583866",
       appId: "1:941798583866:web:d79633db32004e07c74f03"
-  };
+    };
 
-  // ===================================================
-  // 2. DANE OSÓB
-  // ===================================================
-  const chadsData = [
-    {
-      id: "chad_1",
-      rank: 1,
-      locked: false,
-      name: "Jan Kowalski",
-      titlePl: "Legenda polskiej sieci",
-      titleEn: "Polish Internet Legend",
-      img: "https://via.placeholder.com/150",
-      aura: "99.9",
-      votes: 0,
-      descPl: "Oficjalny numer 1 w Polsce. Legendarna aura i genialny content.",
-      descEn: "Official #1 in Poland. Legendary aura and top-tier content."
-    },
-    { id: "chad_2", rank: 2, locked: false, name: "Marin Kitagawa", titlePl: "", titleEn: "", img: "", aura: "98.4", votes: 0, descPl: "", descEn: "" },
-    { id: "chad_3", rank: 3, locked: false, name: "Kira", titlePl: "", titleEn: "", img: "", aura: "96.5", votes: 0, descPl: "", descEn: "" },
-    { id: "chad_4", rank: 4, locked: false, name: "Light Yagami", titlePl: "", titleEn: "", img: "", aura: "94.0", votes: 0, descPl: "", descEn: "" },
-    { id: "chad_5", rank: 5, locked: false, name: "Zeta", titlePl: "", titleEn: "", img: "", aura: "92.1", votes: 0, descPl: "", descEn: "" },
-    { id: "chad_6", rank: 6, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "90.5", votes: 0, descPl: "", descEn: "" },
-    { id: "chad_7", rank: 7, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "88.2", votes: 0, descPl: "", descEn: "" },
-    { id: "chad_8", rank: 8, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "86.0", votes: 0, descPl: "", descEn: "" },
-    { id: "chad_9", rank: 9, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "84.7", votes: 0, descPl: "", descEn: "" },
-    { id: "chad_10", rank: 10, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "82.0", votes: 0, descPl: "", descEn: "" }
-  ];
+    const chadsData = [
+      {
+        id: "chad_1",
+        rank: 1,
+        locked: false,
+        name: "Jan Kowalski",
+        titlePl: "Legenda polskiej sieci",
+        titleEn: "Polish Internet Legend",
+        img: "https://via.placeholder.com/150",
+        aura: "99.9",
+        votes: 0,
+        descPl: "Oficjalny numer 1 w Polsce. Legendarna aura i genialny content.",
+        descEn: "Official #1 in Poland. Legendary aura and top-tier content."
+      },
+      { id: "chad_2", rank: 2, locked: false, name: "Marin Kitagawa", titlePl: "", titleEn: "", img: "", aura: "98.4", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_3", rank: 3, locked: false, name: "Kira", titlePl: "", titleEn: "", img: "", aura: "96.5", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_4", rank: 4, locked: false, name: "Light Yagami", titlePl: "", titleEn: "", img: "", aura: "94.0", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_5", rank: 5, locked: false, name: "Zeta", titlePl: "", titleEn: "", img: "", aura: "92.1", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_6", rank: 6, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "90.5", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_7", rank: 7, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "88.2", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_8", rank: 8, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "86.0", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_9", rank: 9, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "84.7", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_10", rank: 10, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "82.0", votes: 0, descPl: "", descEn: "" }
+    ];
 
-  const i18n = {
-    pl: {
-      timerPrefix: "⏱️ Aktualizacja za: ",
-      hero: "Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.",
-      verified: "🎗️ Zweryfikowano przez Polish Chad Association",
-      unrevealedName: "DO UJAWNIENIA",
-      unrevealedTitle: "tajemniczy chad",
-      unrevealedDesc: "Opis profilu pojawi się po oficjalnym ujawnieniu.",
-      stRank: "Ranga",
-      stVotes: "Głosy",
-      btnVote: "🔥 Daj Głos",
-      btnVoted: "✅ Zagłosowano"
-    },
-    en: {
-      timerPrefix: "⏱️ Update in: ",
-      hero: "Weekly-updated rankings of the most influential chads in the Polish community.",
-      verified: "🎗️ Verified by Polish Chad Association",
-      unrevealedName: "TO BE REVEALED",
-      unrevealedTitle: "mysterious chad",
-      unrevealedDesc: "Profile description will appear after the official reveal.",
-      stRank: "Rank",
-      stVotes: "Votes",
-      btnVote: "🔥 Upvote",
-      btnVoted: "✅ Voted"
+    const i18n = {
+      pl: {
+        timerPrefix: "⏱️ Aktualizacja za: ",
+        hero: "Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.",
+        verified: "🎗️ Zweryfikowano przez Polish Chad Association",
+        unrevealedName: "DO UJAWNIENIA",
+        unrevealedTitle: "tajemniczy chad",
+        unrevealedDesc: "Opis profilu pojawi się po oficjalnym ujawnieniu.",
+        stRank: "Ranga",
+        stVotes: "Głosy",
+        btnVote: "🔥 Daj Głos",
+        btnVoted: "✅ Zagłosowano"
+      },
+      en: {
+        timerPrefix: "⏱️ Update in: ",
+        hero: "Weekly-updated rankings of the most influential chads in the Polish community.",
+        verified: "🎗️ Verified by Polish Chad Association",
+        unrevealedName: "TO BE REVEALED",
+        unrevealedTitle: "mysterious chad",
+        unrevealedDesc: "Profile description will appear after the official reveal.",
+        stRank: "Rank",
+        stVotes: "Votes",
+        btnVote: "🔥 Upvote",
+        btnVoted: "✅ Voted"
+      }
+    };
+
+    let currentLang = "pl";
+    let activeChadId = null;
+    let db = null;
+
+    function renderRankings() {
+      const container = document.getElementById("rankings");
+      if (!container) return;
+      container.innerHTML = "";
+
+      chadsData.forEach(function(chad) {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = function() { openModal(chad); };
+
+        let rankClass = "rank-box";
+        if (chad.rank === 1) rankClass += " rank-1";
+        else if (chad.rank === 2) rankClass += " rank-2";
+        else if (chad.rank === 3) rankClass += " rank-3";
+
+        const isLocked = chad.locked;
+        const nameText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
+        const subText = isLocked 
+          ? i18n[currentLang].unrevealedTitle 
+          : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
+
+        const avatarHTML = (!isLocked && chad.img) 
+          ? '<img src="' + chad.img + '" class="avatar" alt="Avatar">'
+          : '<div class="avatar">❓</div>';
+
+        const auraText = isLocked ? "🔒" : chad.aura;
+        const auraClass = isLocked ? "aura-pill locked" : "aura-pill";
+
+        card.innerHTML = 
+          '<div class="card-left">' +
+            '<div class="' + rankClass + '">' + chad.rank + '</div>' +
+            avatarHTML +
+            '<div class="info">' +
+              '<span class="name">' + nameText + '</span>' +
+              '<span class="subtext">' + subText + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-right">' +
+            '<span class="' + auraClass + '">' + auraText + '</span>' +
+            '<span class="arrow">&rsaquo;</span>' +
+          '</div>';
+
+        container.appendChild(card);
+      });
     }
-  };
 
-  let currentLang = "pl";
-  let activeChadId = null;
-  let db = null;
+    function updateCountdown() {
+      const timerElem = document.getElementById("timer-text");
+      if (!timerElem) return;
 
-  // ===================================================
-  // 3. FUNKCJE WIDOKU I TIMERA
-  // ===================================================
-  function renderRankings() {
-    const container = document.getElementById("rankings");
-    if (!container) return;
-    container.innerHTML = "";
+      const now = new Date();
+      const nextUpdate = new Date();
+      
+      const daysUntilSunday = (7 - now.getDay()) % 7;
+      nextUpdate.setDate(now.getDate() + daysUntilSunday);
+      nextUpdate.setHours(23, 59, 59, 0);
 
-    chadsData.forEach(chad => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.onclick = () => openModal(chad);
+      if (now > nextUpdate) {
+        nextUpdate.setDate(nextUpdate.getDate() + 7);
+      }
 
-      let rankClass = "rank-box";
-      if (chad.rank === 1) rankClass += " rank-1";
-      else if (chad.rank === 2) rankClass += " rank-2";
-      else if (chad.rank === 3) rankClass += " rank-3";
+      const diff = nextUpdate - now;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
 
+      const timeStr = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+      timerElem.innerText = i18n[currentLang].timerPrefix + timeStr;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.getElementById("flag-pl").classList.toggle("active", lang === "pl");
+      document.getElementById("flag-en").classList.toggle("active", lang === "en");
+
+      document.getElementById("txt-hero").innerText = i18n[lang].hero;
+      document.getElementById("txt-verified").innerText = i18n[lang].verified;
+      document.getElementById("st-rank").innerText = i18n[lang].stRank;
+      document.getElementById("st-votes").innerText = i18n[lang].stVotes;
+
+      renderRankings();
+      if (activeChadId !== null) {
+        const chad = chadsData.find(function(c) { return c.id === activeChadId; });
+        if (chad) updateModalText(chad);
+      }
+      updateCountdown();
+    }
+
+    function openModal(chad) {
+      activeChadId = chad.id;
       const isLocked = chad.locked;
-      const nameText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
-      const subText = isLocked 
+      const avatarContainer = document.getElementById("modalAvatarContainer");
+
+      if (!isLocked && chad.img) {
+        avatarContainer.innerHTML = '<img src="' + chad.img + '" class="modal-avatar" alt="Chad">';
+      } else {
+        avatarContainer.innerHTML = '<div class="modal-avatar">❓</div>';
+      }
+
+      document.getElementById("modalStatRank").innerText = "#" + chad.rank;
+      document.getElementById("modalStatAura").innerText = isLocked ? "???" : chad.aura;
+      document.getElementById("modalStatVotes").innerText = chad.votes;
+
+      updateModalText(chad);
+      updateVoteButtonState(chad.id);
+
+      document.getElementById("profileModal").style.display = "flex";
+    }
+
+    function updateModalText(chad) {
+      const isLocked = chad.locked;
+      document.getElementById("modalName").innerText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
+      
+      const titleText = isLocked 
         ? i18n[currentLang].unrevealedTitle 
         : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
 
-      const avatarHTML = (!isLocked && chad.img) 
-        ? `<img src="${chad.img}" class="avatar" alt="Avatar">`
-        : `<div class="avatar">❓</div>`;
-
-      const auraText = isLocked ? "🔒" : chad.aura;
-      const auraClass = isLocked ? "aura-pill locked" : "aura-pill";
-
-      card.innerHTML = `
-        <div class="card-left">
-          <div class="${rankClass}">${chad.rank}</div>
-          ${avatarHTML}
-          <div class="info">
-            <span class="name">${nameText}</span>
-            <span class="subtext">${subText}</span>
-          </div>
-        </div>
-        <div class="card-right">
-          <span class="${auraClass}">${auraText}</span>
-          <span class="arrow">&rsaquo;</span>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  function updateCountdown() {
-    const timerElem = document.getElementById("timer-text");
-    if (!timerElem) return;
-
-    const now = new Date();
-    const nextUpdate = new Date();
-    
-    const daysUntilSunday = (7 - now.getDay()) % 7;
-    nextUpdate.setDate(now.getDate() + daysUntilSunday);
-    nextUpdate.setHours(23, 59, 59, 0);
-
-    if (now > nextUpdate) {
-      nextUpdate.setDate(nextUpdate.getDate() + 7);
-    }
-
-    const diff = nextUpdate - now;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    const timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    timerElem.innerText = i18n[currentLang].timerPrefix + timeStr;
-  }
-
-  function setLanguage(lang) {
-    currentLang = lang;
-    document.getElementById("flag-pl").classList.toggle("active", lang === "pl");
-    document.getElementById("flag-en").classList.toggle("active", lang === "en");
-
-    document.getElementById("txt-hero").innerText = i18n[lang].hero;
-    document.getElementById("txt-verified").innerText = i18n[lang].verified;
-    document.getElementById("st-rank").innerText = i18n[lang].stRank;
-    document.getElementById("st-votes").innerText = i18n[lang].stVotes;
-
-    renderRankings();
-    if (activeChadId !== null) {
-      const chad = chadsData.find(c => c.id === activeChadId);
-      if (chad) updateModalText(chad);
-    }
-    updateCountdown();
-  }
-
-  function openModal(chad) {
-    activeChadId = chad.id;
-    const isLocked = chad.locked;
-    const avatarContainer = document.getElementById("modalAvatarContainer");
-
-    if (!isLocked && chad.img) {
-      avatarContainer.innerHTML = `<img src="${chad.img}" class="modal-avatar" alt="Chad">`;
-    } else {
-      avatarContainer.innerHTML = `<div class="modal-avatar">❓</div>`;
-    }
-
-    document.getElementById("modalStatRank").innerText = `#${chad.rank}`;
-    document.getElementById("modalStatAura").innerText = isLocked ? "???" : chad.aura;
-    document.getElementById("modalStatVotes").innerText = chad.votes;
-
-    updateModalText(chad);
-    updateVoteButtonState(chad.id);
-
-    document.getElementById("profileModal").style.display = "flex";
-  }
-
-  function updateModalText(chad) {
-    const isLocked = chad.locked;
-    document.getElementById("modalName").innerText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
-    
-    const titleText = isLocked 
-      ? i18n[currentLang].unrevealedTitle 
-      : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
-
-    document.getElementById("modalTitle").innerText = titleText;
-    
-    const desc = isLocked 
-      ? i18n[currentLang].unrevealedDesc 
-      : (currentLang === "pl" ? chad.descPl : chad.descEn);
+      document.getElementById("modalTitle").innerText = titleText;
       
-    document.getElementById("modalDesc").innerText = desc || "";
-  }
-
-  function getStoredVotes(id) {
-    return parseInt(localStorage.getItem("chad_vote_" + id) || "0", 10);
-  }
-
-  function updateVoteButtonState(id) {
-    const btn = document.getElementById("btnVote");
-    const hasVoted = getStoredVotes(id) > 0;
-    
-    if (hasVoted) {
-      btn.classList.add("voted");
-      document.getElementById("txt-vote").innerText = i18n[currentLang].btnVoted;
-    } else {
-      btn.classList.remove("voted");
-      document.getElementById("txt-vote").innerText = i18n[currentLang].btnVote;
-    }
-  }
-
-  function castVote() {
-    if (!activeChadId) return;
-    const hasVoted = getStoredVotes(activeChadId) > 0;
-    
-    if (!hasVoted) {
-      localStorage.setItem("chad_vote_" + activeChadId, "1");
-      
-      if (db) {
-        db.ref('votes/' + activeChadId).transaction((currentVotes) => {
-          return (currentVotes || 0) + 1;
-        });
-      }
-
-      updateVoteButtonState(activeChadId);
-    }
-  }
-
-  function closeModal() {
-    document.getElementById("profileModal").style.display = "none";
-    activeChadId = null;
-  }
-
-  // ===================================================
-  // 4. INICJALIZACJA STRONY (Gwarantowany start)
-  // ===================================================
-  renderRankings();
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-
-  // ===================================================
-  // 5. BEZPIECZNE PODŁĄCZENIE FIREBASE
-  // ===================================================
-  try {
-    if (typeof firebase !== 'undefined') {
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.database();
-
-      db.ref('votes').on('value', (snapshot) => {
-        const votesData = snapshot.val() || {};
+      const desc = isLocked 
+        ? i18n[currentLang].unrevealedDesc 
+        : (currentLang === "pl" ? chad.descPl : chad.descEn);
         
-        chadsData.forEach(chad => {
-          chad.votes = votesData[chad.id] || 0;
-        });
-
-        chadsData.sort((a, b) => b.votes - a.votes);
-
-        chadsData.forEach((chad, index) => {
-          chad.rank = index + 1;
-        });
-
-        renderRankings();
-
-        if (activeChadId !== null) {
-          const activeChad = chadsData.find(c => c.id === activeChadId);
-          if (activeChad) {
-            document.getElementById("modalStatRank").innerText = `#${activeChad.rank}`;
-            document.getElementById("modalStatVotes").innerText = activeChad.votes;
-          }
-        }
-      });
+      document.getElementById("modalDesc").innerText = desc || "";
     }
-  } catch (err) {
-    console.warn("Firebase nie mógł się załadować (np. blokada AdBlock/Brave):", err);
-  }
-</script>
+
+    function getStoredVotes(id) {
+      return parseInt(localStorage.getItem("chad_vote_" + id) || "0", 10);
+    }
+
+    function updateVoteButtonState(id) {
+      const btn = document.getElementById("btnVote");
+      const hasVoted = getStoredVotes(id) > 0;
+      
+      if (hasVoted) {
+        btn.classList.add("voted");
+        document.getElementById("txt-vote").innerText = i18n[currentLang].btnVoted;
+      } else {
+        btn.classList.remove("voted");
+        document.getElementById("txt-vote").innerText = i18n[currentLang].btnVote;
+      }
+    }
+
+    function castVote() {
+      if (!activeChadId) return;
+      const hasVoted = getStoredVotes(activeChadId) > 0;
+      
+      if (!hasVoted) {
+        localStorage.setItem("chad_vote_" + activeChadId, "1");
+        
+        if (db) {
+          db.ref('votes/' + activeChadId).transaction(function(currentVotes) {
+            return (currentVotes || 0) + 1;
+          });
+        }
+
+        updateVoteButtonState(activeChadId);
+      }
+    }
+
+    functio
