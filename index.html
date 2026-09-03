@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Polish Chad Rankings</title>
+
+  <!-- Biblioteki Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
   <style>
     :root {
       --bg: radial-gradient(circle at top, #1a0b2e 0%, #090a0f 100%);
@@ -150,7 +155,6 @@
       font-weight: 700;
       padding: 6px 14px;
       border-radius: 20px;
-      font-mono: monospace;
     }
 
     .hero-description {
@@ -187,13 +191,12 @@
       justify-content: space-between;
       border: 1px solid rgba(255, 255, 255, 0.06);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: transform 0.2s ease, background 0.15s ease;
     }
 
     .card:active {
       background: rgba(255, 255, 255, 0.12);
       border-color: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
     }
 
     .card:active .name { color: var(--purple-accent); }
@@ -293,7 +296,6 @@
       font-size: 1.3rem;
       color: #4b5563;
       font-weight: bold;
-      transition: color 0.15s ease;
     }
 
     .modal {
@@ -431,7 +433,6 @@
 
     <main class="content">
       <section class="hero-section">
-        <!-- Odliczający Timer -->
         <div class="badge-updated" id="timer-text">⏱️ Loading timer...</div>
         <p class="hero-description" id="txt-hero">
           Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.
@@ -474,24 +475,44 @@
   </div>
 
   <script>
-    // BAZA OSÓB: Teraza posiada titlePl oraz titleEn
+    // ===================================================
+    // 1. USTAWIENIA BAZY FIREBASE (PODMIEŃ SOWJE DANE)
+    // ===================================================
+    const firebaseConfig = {
+      apiKey: "AlzaSyCJDcay4pyauLgGQLloTrf1kp2GjXoQmTA",
+      authDomain: "https://polish-chad-rankings.firebaseapp.com",
+      databaseURL: "https://polish-chad-rankings-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "polish-chad-rankings",
+      storageBucket: "https://polish-chad-rankings.firebasestorage.app",
+      messagingSenderId: "941798583866",
+      appId: "1:941798583866:web:d79633db32004e07c74f03"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ===================================================
+    // 2. DANE OSÓB (Każda osoba ma unikalne "id")
+    // ===================================================
     const chadsData = [
       {
+        id: "chad_1",
         rank: 1,
-        locked: true,
+        locked: false,
         name: "Jan Kowalski",
         titlePl: "Legenda polskiej sieci",
         titleEn: "Polish Internet Legend",
         img: "https://via.placeholder.com/150",
         aura: "99.9",
-        votes: 0, // Domyślnie startuje od 0
+        votes: 0,
         descPl: "Oficjalny numer 1 w Polsce. Legendarna aura i genialny content.",
         descEn: "Official #1 in Poland. Legendary aura and top-tier content."
       },
       {
+        id: "chad_2",
         rank: 2,
-        locked: true,
-        name: "",
+        locked: false,
+        name: "Zeta",
         titlePl: "",
         titleEn: "",
         img: "",
@@ -500,14 +521,14 @@
         descPl: "",
         descEn: ""
       },
-      { rank: 3, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "96.5", votes: 0, descPl: "", descEn: "" },
-      { rank: 4, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "94.0", votes: 0, descPl: "", descEn: "" },
-      { rank: 5, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "92.1", votes: 0, descPl: "", descEn: "" },
-      { rank: 6, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "90.5", votes: 0, descPl: "", descEn: "" },
-      { rank: 7, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "88.2", votes: 0, descPl: "", descEn: "" },
-      { rank: 8, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "86.0", votes: 0, descPl: "", descEn: "" },
-      { rank: 9, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "84.7", votes: 0, descPl: "", descEn: "" },
-      { rank: 10, locked: false, name: "Maksym Wołoszyn", titlePl: "Panienka lekkich obyczajów", titleEn: "A lady of easy virtue", img: "Screenshot_2026-09-03-19-01-40-155_com.zhiliaoapp.musically-edit.jpg", aura: "82.0", votes: 0, descPl: "Maksym Wołoszyn zasłynął z swoej niewarygodnej pracy. W swoim stażu spędził 10 lat oraz zadowolił wiele klientów. Niestety Maksym skończył swoją karierę i przeszedł na emeryturę.", descEn: "Maksym Wołoszyn became renowned for his exceptional work. Over the course of his ten-year career, he satisfied many clients. Unfortunately, Maksym has ended his career and retired." }
+      { id: "chad_3", rank: 3, locked: false, name: "Kira", titlePl: "", titleEn: "", img: "", aura: "96.5", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_4", rank: 4, locked: false, name: "Light Yagami", titlePl: "", titleEn: "", img: "", aura: "94.0", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_5", rank: 5, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "92.1", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_6", rank: 6, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "90.5", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_7", rank: 7, locked: false, name: "Marin Kitagawa", titlePl: "", titleEn: "", img: "", aura: "88.2", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_8", rank: 8, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "86.0", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_9", rank: 9, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "84.7", votes: 0, descPl: "", descEn: "" },
+      { id: "chad_10", rank: 10, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "82.0", votes: 0, descPl: "", descEn: "" }
     ];
 
     const i18n = {
@@ -538,7 +559,38 @@
     };
 
     let currentLang = "pl";
-    let activeChadRank = null;
+    let activeChadId = null;
+
+    // ===================================================
+    // 3. ODSŁUCHIWANIE BAZY I AUTOMATYCZNE SORTOWANIE
+    // ===================================================
+    db.ref('votes').on('value', (snapshot) => {
+      const votesData = snapshot.val() || {};
+      
+      // Przypisujemy liczby głosów z bazy do osób
+      chadsData.forEach(chad => {
+        chad.votes = votesData[chad.id] || 0;
+      });
+
+      // SORTOWANIE MALEJĄCE (najwięcej głosów na górze)
+      chadsData.sort((a, b) => b.votes - a.votes);
+
+      // Aktualizujemy rangę (#1, #2, #3...) zgodnie z nową kolejnością
+      chadsData.forEach((chad, index) => {
+        chad.rank = index + 1;
+      });
+
+      renderRankings();
+
+      // Jeśli profil jest obecnie otwarty, odświeżamy dane na żywo
+      if (activeChadId !== null) {
+        const activeChad = chadsData.find(c => c.id === activeChadId);
+        if (activeChad) {
+          document.getElementById("modalStatRank").innerText = `#${activeChad.rank}`;
+          document.getElementById("modalStatVotes").innerText = activeChad.votes;
+        }
+      }
+    });
 
     function setLanguage(lang) {
       currentLang = lang;
@@ -551,8 +603,8 @@
       document.getElementById("st-votes").innerText = i18n[lang].stVotes;
 
       renderRankings();
-      if (activeChadRank !== null) {
-        const chad = chadsData.find(c => c.rank === activeChadRank);
+      if (activeChadId !== null) {
+        const chad = chadsData.find(c => c.id === activeChadId);
         if (chad) updateModalText(chad);
       }
       updateCountdown();
@@ -574,8 +626,6 @@
 
         const isLocked = chad.locked;
         const nameText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
-        
-        // Tytuł pobierany zależnie od aktualnego języka
         const subText = isLocked 
           ? i18n[currentLang].unrevealedTitle 
           : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
@@ -606,7 +656,7 @@
     }
 
     function openModal(chad) {
-      activeChadRank = chad.rank;
+      activeChadId = chad.id;
       const isLocked = chad.locked;
       const avatarContainer = document.getElementById("modalAvatarContainer");
 
@@ -618,12 +668,10 @@
 
       document.getElementById("modalStatRank").innerText = `#${chad.rank}`;
       document.getElementById("modalStatAura").innerText = isLocked ? "???" : chad.aura;
-      
-      const userVotes = getStoredVotes(chad.rank);
-      document.getElementById("modalStatVotes").innerText = chad.votes + userVotes;
+      document.getElementById("modalStatVotes").innerText = chad.votes;
 
       updateModalText(chad);
-      updateVoteButtonState(chad.rank);
+      updateVoteButtonState(chad.id);
 
       document.getElementById("profileModal").style.display = "flex";
     }
@@ -645,60 +693,5 @@
       document.getElementById("modalDesc").innerText = desc || "";
     }
 
-    function getStoredVotes(rank) {
-      return parseInt(localStorage.getItem("chad_vote_" + rank) || "0", 10);
-    }
-
-    function updateVoteButtonState(rank) {
-      const btn = document.getElementById("btnVote");
-      const hasVoted = getStoredVotes(rank) > 0;
-      
-      if (hasVoted) {
-        btn.classList.add("voted");
-        document.getElementById("txt-vote").innerText = i18n[currentLang].btnVoted;
-      } else {
-        btn.classList.remove("voted");
-        document.getElementById("txt-vote").innerText = i18n[currentLang].btnVote;
-      }
-    }
-
-    function castVote() {
-      if (activeChadRank === null) return;
-      const hasVoted = getStoredVotes(activeChadRank) > 0;
-      
-      if (!hasVoted) {
-        localStorage.setItem("chad_vote_" + activeChadRank, "1");
-        const chad = chadsData.find(c => c.rank === activeChadRank);
-        if (chad) {
-          document.getElementById("modalStatVotes").innerText = chad.votes + 1;
-        }
-        updateVoteButtonState(activeChadRank);
-      }
-    }
-
-    function closeModal() {
-      document.getElementById("profileModal").style.display = "none";
-      activeChadRank = null;
-    }
-
-    // LOGIKA TIMER-A (Odliczanie do najbliższej Niedzieli do 23:59:59)
-    function updateCountdown() {
-      const now = new Date();
-      const nextUpdate = new Date();
-      
-      const daysUntilSunday = (7 - now.getDay()) % 7;
-      nextUpdate.setDate(now.getDate() + daysUntilSunday);
-      nextUpdate.setHours(23, 59, 59, 0);
-
-      if (now > nextUpdate) {
-        nextUpdate.setDate(nextUpdate.getDate() + 7);
-      }
-
-      const diff = nextUpdate - now;
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60 * 60 / 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-
-      const timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-      document.getElementById("timer-text").innerText 
+    function getStoredVotes(id) {
+      return parseInt(localStorage.getItem("chad_vote_" +
