@@ -147,9 +147,10 @@
       border: 1px solid rgba(245, 158, 11, 0.3);
       color: var(--accent-gold);
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       padding: 6px 14px;
       border-radius: 20px;
+      font-mono: monospace;
     }
 
     .hero-description {
@@ -195,13 +196,8 @@
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
     }
 
-    .card:active .name {
-      color: var(--purple-accent);
-    }
-
-    .card:active .arrow {
-      color: var(--purple-accent);
-    }
+    .card:active .name { color: var(--purple-accent); }
+    .card:active .arrow { color: var(--purple-accent); }
 
     .card-left {
       display: flex;
@@ -300,7 +296,6 @@
       transition: color 0.15s ease;
     }
 
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -350,7 +345,6 @@
       border: 2px solid var(--purple-accent);
     }
 
-    /* Sekcja ze statystykami w oknie profilu */
     .modal-stats {
       display: flex;
       justify-content: space-around;
@@ -395,12 +389,10 @@
       align-items: center;
       gap: 6px;
       box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
-      transition: transform 0.1s ease, opacity 0.2s ease;
+      transition: transform 0.1s ease;
     }
 
-    .vote-btn:active {
-      transform: scale(0.95);
-    }
+    .vote-btn:active { transform: scale(0.95); }
 
     .vote-btn.voted {
       background: rgba(255, 255, 255, 0.1);
@@ -439,7 +431,8 @@
 
     <main class="content">
       <section class="hero-section">
-        <div class="badge-updated" id="txt-updated">⏱️ Cotygodniowa aktualizacja</div>
+        <!-- Odliczający Timer -->
+        <div class="badge-updated" id="timer-text">⏱️ Loading timer...</div>
         <p class="hero-description" id="txt-hero">
           Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.
         </p>
@@ -457,7 +450,7 @@
       <h2 id="modalName"></h2>
       <p id="modalTitle" style="color: var(--subtext); font-size: 0.8rem; margin-top: 2px;"></p>
       
-      <div class="modal-stats" id="modalStatsSection">
+      <div class="modal-stats">
         <div class="stat-box">
           <span class="stat-title" id="st-rank">Ranga</span>
           <span class="stat-value" id="modalStatRank">#1</span>
@@ -481,43 +474,45 @@
   </div>
 
   <script>
-    // DANE OSÓB W RANKINGU (z opcją aura i votes)
+    // BAZA OSÓB: Teraza posiada titlePl oraz titleEn
     const chadsData = [
       {
         rank: 1,
-        locked: false,
+        locked: true,
         name: "Jan Kowalski",
-        title: "Giga Chad",
+        titlePl: "Legenda polskiej sieci",
+        titleEn: "Polish Internet Legend",
         img: "https://via.placeholder.com/150",
         aura: "99.9",
-        votes: 342,
-        descPl: "Oficjalny numer 1 w Polsce. Legendarna aura i genialne tworzenie contentu.",
-        descEn: "Official #1 in Poland. Legendary aura and top-tier content creation."
+        votes: 0, // Domyślnie startuje od 0
+        descPl: "Oficjalny numer 1 w Polsce. Legendarna aura i genialny content.",
+        descEn: "Official #1 in Poland. Legendary aura and top-tier content."
       },
       {
         rank: 2,
         locked: true,
         name: "",
-        title: "",
+        titlePl: "",
+        titleEn: "",
         img: "",
         aura: "98.4",
-        votes: 210,
+        votes: 0,
         descPl: "",
         descEn: ""
       },
-      { rank: 3, locked: true, name: "", title: "", img: "", aura: "96.5", votes: 150, descPl: "", descEn: "" },
-      { rank: 4, locked: true, name: "", title: "", img: "", aura: "94.0", votes: 98, descPl: "", descEn: "" },
-      { rank: 5, locked: true, name: "", title: "", img: "", aura: "92.1", votes: 80, descPl: "", descEn: "" },
-      { rank: 6, locked: true, name: "", title: "", img: "", aura: "90.5", votes: 62, descPl: "", descEn: "" },
-      { rank: 7, locked: true, name: "", title: "", img: "", aura: "88.2", votes: 45, descPl: "", descEn: "" },
-      { rank: 8, locked: true, name: "", title: "", img: "", aura: "86.0", votes: 30, descPl: "", descEn: "" },
-      { rank: 9, locked: true, name: "", title: "", img: "", aura: "84.7", votes: 21, descPl: "", descEn: "" },
-      { rank: 10, locked: false, name: "Maksym Wołoszyn", title: "Panienka Lekkich Obyczajów", img: "Screenshot_2026-09-03-19-01-40-155_com.zhiliaoapp.musically-edit.jpg", aura: "82.0", votes: 15, descPl: "Maksym Wołoszyn zasłynął z swoej niewarygodnej pracy. W swoim stażu spędził 10 lat oraz zadowolił wiele klientów. Niestety Maksym skończył swoją karierę i przeszedł na emeryturę.", descEn: "Maksym Wołoszyn became renowned for his exceptional work. Over the course of his ten-year career, he satisfied many clients. Unfortunately, Maksym has ended his career and retired." }
+      { rank: 3, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "96.5", votes: 0, descPl: "", descEn: "" },
+      { rank: 4, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "94.0", votes: 0, descPl: "", descEn: "" },
+      { rank: 5, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "92.1", votes: 0, descPl: "", descEn: "" },
+      { rank: 6, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "90.5", votes: 0, descPl: "", descEn: "" },
+      { rank: 7, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "88.2", votes: 0, descPl: "", descEn: "" },
+      { rank: 8, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "86.0", votes: 0, descPl: "", descEn: "" },
+      { rank: 9, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "84.7", votes: 0, descPl: "", descEn: "" },
+      { rank: 10, locked: false, name: "Maksym Wołoszyn", titlePl: "Panienka lekkich obyczajów", titleEn: "A lady of easy virtue", img: "Screenshot_2026-09-03-19-01-40-155_com.zhiliaoapp.musically-edit.jpg", aura: "82.0", votes: 0, descPl: "Maksym Wołoszyn zasłynął z swoej niewarygodnej pracy. W swoim stażu spędził 10 lat oraz zadowolił wiele klientów. Niestety Maksym skończył swoją karierę i przeszedł na emeryturę.", descEn: "Maksym Wołoszyn became renowned for his exceptional work. Over the course of his ten-year career, he satisfied many clients. Unfortunately, Maksym has ended his career and retired." }
     ];
 
     const i18n = {
       pl: {
-        updated: "⏱️ Cotygodniowa aktualizacja",
+        timerPrefix: "⏱️ Aktualizacja za: ",
         hero: "Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.",
         verified: "🎗️ Zweryfikowano przez Polish Chad Association",
         unrevealedName: "DO UJAWNIENIA",
@@ -529,7 +524,7 @@
         btnVoted: "✅ Zagłosowano"
       },
       en: {
-        updated: "⏱️ Weekly Updated",
+        timerPrefix: "⏱️ Update in: ",
         hero: "Weekly-updated rankings of the most influential chads in the Polish community.",
         verified: "🎗️ Verified by Polish Chad Association",
         unrevealedName: "TO BE REVEALED",
@@ -550,7 +545,6 @@
       document.getElementById("flag-pl").classList.toggle("active", lang === "pl");
       document.getElementById("flag-en").classList.toggle("active", lang === "en");
 
-      document.getElementById("txt-updated").innerText = i18n[lang].updated;
       document.getElementById("txt-hero").innerText = i18n[lang].hero;
       document.getElementById("txt-verified").innerText = i18n[lang].verified;
       document.getElementById("st-rank").innerText = i18n[lang].stRank;
@@ -561,6 +555,7 @@
         const chad = chadsData.find(c => c.rank === activeChadRank);
         if (chad) updateModalText(chad);
       }
+      updateCountdown();
     }
 
     function renderRankings() {
@@ -579,7 +574,12 @@
 
         const isLocked = chad.locked;
         const nameText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
-        const subText = isLocked ? i18n[currentLang].unrevealedTitle : chad.title;
+        
+        // Tytuł pobierany zależnie od aktualnego języka
+        const subText = isLocked 
+          ? i18n[currentLang].unrevealedTitle 
+          : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
+
         const avatarHTML = (!isLocked && chad.img) 
           ? `<img src="${chad.img}" class="avatar" alt="Avatar">`
           : `<div class="avatar">❓</div>`;
@@ -631,7 +631,12 @@
     function updateModalText(chad) {
       const isLocked = chad.locked;
       document.getElementById("modalName").innerText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
-      document.getElementById("modalTitle").innerText = isLocked ? i18n[currentLang].unrevealedTitle : chad.title;
+      
+      const titleText = isLocked 
+        ? i18n[currentLang].unrevealedTitle 
+        : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
+
+      document.getElementById("modalTitle").innerText = titleText;
       
       const desc = isLocked 
         ? i18n[currentLang].unrevealedDesc 
@@ -640,7 +645,6 @@
       document.getElementById("modalDesc").innerText = desc || "";
     }
 
-    /* System Głosowania (LocalStorage) */
     function getStoredVotes(rank) {
       return parseInt(localStorage.getItem("chad_vote_" + rank) || "0", 10);
     }
@@ -677,7 +681,24 @@
       activeChadRank = null;
     }
 
-    renderRankings();
-  </script>
-</body>
-</html>
+    // LOGIKA TIMER-A (Odliczanie do najbliższej Niedzieli do 23:59:59)
+    function updateCountdown() {
+      const now = new Date();
+      const nextUpdate = new Date();
+      
+      const daysUntilSunday = (7 - now.getDay()) % 7;
+      nextUpdate.setDate(now.getDate() + daysUntilSunday);
+      nextUpdate.setHours(23, 59, 59, 0);
+
+      if (now > nextUpdate) {
+        nextUpdate.setDate(nextUpdate.getDate() + 7);
+      }
+
+      const diff = nextUpdate - now;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60 * 60 / 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      const timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      document.getElementById("timer-text").innerText 
