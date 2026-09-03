@@ -43,6 +43,7 @@
       padding-bottom: 24px;
     }
 
+    /* Sticky Header z miejscem na logo i flagi */
     header {
       position: sticky;
       top: 0;
@@ -51,29 +52,60 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 10px;
     }
 
-    .logo-container {
+    .header-top {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      width: 100%;
     }
 
-    .logo-icon {
-      font-size: 1.5rem;
+    /* Miejsce na Twoje Logo */
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
     }
 
     h1 {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 800;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       color: var(--text);
       text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* Przełącznik języków (Flagi) */
+    .lang-switch {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .flag-btn {
+      font-size: 1.3rem;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: all 0.2s ease;
+      filter: grayscale(40%);
+    }
+
+    .flag-btn.active {
+      opacity: 1;
+      transform: scale(1.15);
+      filter: grayscale(0%);
     }
 
     .tabs {
@@ -86,8 +118,8 @@
       color: var(--text);
       text-decoration: none;
       font-weight: 700;
-      font-size: 0.9rem;
-      padding: 6px 16px;
+      font-size: 0.85rem;
+      padding: 4px 16px;
       border-bottom: 2px solid var(--orange-accent);
       display: flex;
       align-items: center;
@@ -107,7 +139,7 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      padding: 8px 0;
+      padding: 4px 0;
     }
 
     .badge-updated {
@@ -160,7 +192,6 @@
       transition: all 0.15s ease;
     }
 
-    /* Rozjaśnienie okienka na biało + fioletowy tekst i strzałka */
     .card:active {
       background: rgba(255, 255, 255, 0.12);
       border-color: rgba(255, 255, 255, 0.25);
@@ -194,7 +225,6 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* Metaliczne gradienty dla Top 3 */
     .rank-1 {
       background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #996515 100%);
       color: #000000;
@@ -218,6 +248,7 @@
       height: 44px;
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.08);
+      object-fit: cover;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -255,6 +286,10 @@
       padding: 4px 8px;
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.08);
+      color: #4ade80;
+    }
+
+    .trend-pill.locked {
       color: var(--subtext);
     }
 
@@ -265,6 +300,7 @@
       transition: color 0.15s ease;
     }
 
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -301,15 +337,16 @@
     }
 
     .modal-avatar {
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.1);
       margin: 0 auto 12px auto;
+      object-fit: cover;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
+      font-size: 2.2rem;
       border: 2px solid var(--purple-accent);
     }
 
@@ -317,7 +354,8 @@
       margin-top: 16px;
       font-size: 0.85rem;
       color: var(--subtext);
-      min-height: 30px;
+      line-height: 1.4;
+      min-height: 40px;
     }
   </style>
 </head>
@@ -325,10 +363,18 @@
 
   <div class="app-container">
     <header>
-      <div class="logo-container">
-        <span class="logo-icon">🗿</span>
+      <div class="header-top">
+        <!-- Zmień src="logo.png" na link/ścieżkę do Twojego logo -->
+        <img src="logo.png" alt="Logo" class="header-logo" onerror="this.onerror=null; this.outerHTML='<div class=\'header-logo\'>🗿</div>';">
+        
         <h1>POLISH CHAD RANKINGS</h1>
+
+        <div class="lang-switch">
+          <span class="flag-btn active" id="flag-pl" onclick="setLanguage('pl')">🇵🇱</span>
+          <span class="flag-btn" id="flag-en" onclick="setLanguage('en')">🇬🇧</span>
+        </div>
       </div>
+
       <div class="tabs">
         <a href="#" class="tab">📋 Rankings</a>
       </div>
@@ -336,11 +382,11 @@
 
     <main class="content">
       <section class="hero-section">
-        <div class="badge-updated">⏱️ Cotygodniowa aktualizacja</div>
-        <p class="hero-description">
+        <div class="badge-updated" id="txt-updated">⏱️ Cotygodniowa aktualizacja</div>
+        <p class="hero-description" id="txt-hero">
           Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.
         </p>
-        <div class="badge-verified">🎗️ Zweryfikowano przez Polish Chad Association</div>
+        <div class="badge-verified" id="txt-verified">🎗️ Zweryfikowano przez Polish Chad Association</div>
       </section>
 
       <section class="rankings-list" id="rankings"></section>
@@ -350,53 +396,165 @@
   <div class="modal" id="profileModal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()">&times;</button>
-      <div class="modal-avatar">❓</div>
-      <h2 id="modalName">DO UJAWNIENIA</h2>
-      <p id="modalRank" style="color: var(--orange-accent); font-weight: bold; margin-top: 4px;"></p>
-      <div class="modal-body">
-        <p>Opis profilu pojawi się po oficjalnym ujawnieniu.</p>
-      </div>
+      <div id="modalAvatarContainer"></div>
+      <h2 id="modalName"></h2>
+      <p id="modalTitle" style="color: var(--subtext); font-size: 0.8rem; margin-top: 2px;"></p>
+      <p id="modalRank" style="color: var(--orange-accent); font-weight: bold; margin-top: 6px;"></p>
+      <div class="modal-body" id="modalDesc"></div>
     </div>
   </div>
 
   <script>
-    const rankingsContainer = document.getElementById("rankings");
+    // ==========================================
+    // EDYTUJ SWOJE OSOBY W RANKINGU PONIŻEJ
+    // ==========================================
+    // locked: true  -> profil zakryty ("DO UJAWNIENIA")
+    // locked: false -> profil odblokowany (widoczne imię, fotka i opis)
+    const chadsData = [
+      {
+        rank: 1,
+        locked: true,
+        name: "Jan Kowalski",
+        title: "Giga Chad",
+        img: "https://via.placeholder.com/150",
+        trend: "+2",
+        descPl: "Oficjalny numer 1 w Polsce. Legendarna aura i genialne tworzenie contentu.",
+        descEn: "Official #1 in Poland. Legendary aura and top-tier content creation."
+      },
+      {
+        rank: 2,
+        locked: true,
+        name: "Piotr Nowak",
+        title: "Mogger",
+        img: "https://via.placeholder.com/150",
+        trend: "+1",
+        descPl: "Niezwykły potencjał genetyczny i charyzma.",
+        descEn: "Unreal genetic potential and charisma."
+      },
+      {
+        rank: 3,
+        locked: true,
+        name: "",
+        title: "",
+        img: "",
+        trend: "🔒",
+        descPl: "",
+        descEn: ""
+      },
+      { rank: 4, locked: true, name: "", title: "", img: "", trend: "🔒", descPl: "", descEn: "" },
+      { rank: 5, locked: true, name: "", title: "", img: "", trend: "🔒", descPl: "", descEn: "" },
+      { rank: 6, locked: true, name: "", title: "", img: "", trend: "🔒", descPl: "", descEn: "" },
+      { rank: 7, locked: true, name: "", title: "", img: "", trend: "🔒", descPl: "", descEn: "" },
+      { rank: 8, locked: true, name: "", title: "", img: "", trend: "🔒", descPl: "", descEn: "" },
+      { rank: 9, locked: true, name: "", title: "", img: "", trend: "🔒", descPl: "", descEn: "" },
+      { rank: 10, locked: true, name: "", title: "", img: "", trend: "🔒", descPl: "", descEn: "" }
+    ];
 
-    for (let i = 1; i <= 10; i++) {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.onclick = () => openModal(i);
+    // Słownik językowy
+    const i18n = {
+      pl: {
+        updated: "⏱️ Cotygodniowa aktualizacja",
+        hero: "Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.",
+        verified: "🎗️ Zweryfikowano przez Polish Chad Association",
+        unrevealedName: "DO UJAWNIENIA",
+        unrevealedTitle: "tajemniczy chad",
+        unrevealedDesc: "Opis profilu pojawi się po oficjalnym ujawnieniu.",
+        place: "miejsce"
+      },
+      en: {
+        updated: "⏱️ Weekly Updated",
+        hero: "Weekly-updated rankings of the most influential chads in the Polish community.",
+        verified: "🎗️ Verified by Polish Chad Association",
+        unrevealedName: "TO BE REVEALED",
+        unrevealedTitle: "mysterious chad",
+        unrevealedDesc: "Profile description will appear after the official reveal.",
+        place: "place"
+      }
+    };
 
-      let rankClass = "rank-box";
-      if (i === 1) rankClass += " rank-1";
-      else if (i === 2) rankClass += " rank-2";
-      else if (i === 3) rankClass += " rank-3";
+    let currentLang = "pl";
 
-      card.innerHTML = `
-        <div class="card-left">
-          <div class="${rankClass}">${i}</div>
-          <div class="avatar">❓</div>
-          <div class="info">
-            <span class="name">DO UJAWNIENIA</span>
-            <span class="subtext">tajemniczy chad</span>
-          </div>
-        </div>
-        <div class="card-right">
-          <span class="trend-pill">🔒</span>
-          <span class="arrow">&rsaquo;</span>
-        </div>
-      `;
-      rankingsContainer.appendChild(card);
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.getElementById("flag-pl").classList.toggle("active", lang === "pl");
+      document.getElementById("flag-en").classList.toggle("active", lang === "en");
+
+      document.getElementById("txt-updated").innerText = i18n[lang].updated;
+      document.getElementById("txt-hero").innerText = i18n[lang].hero;
+      document.getElementById("txt-verified").innerText = i18n[lang].verified;
+
+      renderRankings();
     }
 
-    function openModal(rank) {
-      document.getElementById("modalRank").innerText = `#${rank} miejsce`;
+    function renderRankings() {
+      const container = document.getElementById("rankings");
+      container.innerHTML = "";
+
+      chadsData.forEach(chad => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => openModal(chad);
+
+        let rankClass = "rank-box";
+        if (chad.rank === 1) rankClass += " rank-1";
+        else if (chad.rank === 2) rankClass += " rank-2";
+        else if (chad.rank === 3) rankClass += " rank-3";
+
+        const isLocked = chad.locked;
+        const nameText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
+        const subText = isLocked ? i18n[currentLang].unrevealedTitle : chad.title;
+        const avatarHTML = (!isLocked && chad.img) 
+          ? `<img src="${chad.img}" class="avatar" alt="Avatar">`
+          : `<div class="avatar">❓</div>`;
+
+        const trendClass = isLocked ? "trend-pill locked" : "trend-pill";
+
+        card.innerHTML = `
+          <div class="card-left">
+            <div class="${rankClass}">${chad.rank}</div>
+            ${avatarHTML}
+            <div class="info">
+              <span class="name">${nameText}</span>
+              <span class="subtext">${subText}</span>
+            </div>
+          </div>
+          <div class="card-right">
+            <span class="${trendClass}">${isLocked ? "🔒" : chad.trend}</span>
+            <span class="arrow">&rsaquo;</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openModal(chad) {
+      const isLocked = chad.locked;
+      const avatarContainer = document.getElementById("modalAvatarContainer");
+
+      if (!isLocked && chad.img) {
+        avatarContainer.innerHTML = `<img src="${chad.img}" class="modal-avatar" alt="Chad">`;
+      } else {
+        avatarContainer.innerHTML = `<div class="modal-avatar">❓</div>`;
+      }
+
+      document.getElementById("modalName").innerText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
+      document.getElementById("modalTitle").innerText = isLocked ? i18n[currentLang].unrevealedTitle : chad.title;
+      document.getElementById("modalRank").innerText = `#${chad.rank} ${i18n[currentLang].place}`;
+      
+      const desc = isLocked 
+        ? i18n[currentLang].unrevealedDesc 
+        : (currentLang === "pl" ? chad.descPl : chad.descEn);
+        
+      document.getElementById("modalDesc").innerText = desc || "";
       document.getElementById("profileModal").style.display = "flex";
     }
 
     function closeModal() {
       document.getElementById("profileModal").style.display = "none";
     }
+
+    // Start aplikacji
+    renderRankings();
   </script>
 </body>
 </html>
