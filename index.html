@@ -11,13 +11,14 @@
 
   <style>
     :root {
-      --bg: radial-gradient(circle at top, #1a0b2e 0%, #090a0f 100%);
-      --card-bg: #14161d;
-      --accent-gold: #f59e0b;
-      --purple-accent: #a855f7;
-      --orange-accent: #ff9800;
+      --bg: radial-gradient(circle at top, #1e0c38 0%, #08070c 100%);
+      --card-bg: #12111a;
+      --purple-main: #a855f7;
+      --purple-light: #c084fc;
+      --purple-dark: #7e22ce;
+      --purple-gradient: linear-gradient(135deg, #a855f7 0%, #6b21a8 100%);
       --text: #ffffff;
-      --subtext: #8e95a5;
+      --subtext: #8e8d9f;
     }
 
     * {
@@ -31,7 +32,7 @@
     }
 
     body {
-      background: #090a0f;
+      background: #08070c;
       background-image: var(--bg);
       background-attachment: fixed;
       color: var(--text);
@@ -52,10 +53,10 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: rgba(13, 14, 18, 0.92);
+      background: rgba(12, 10, 20, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(168, 85, 247, 0.15);
       padding: 10px 14px;
       display: flex;
       flex-direction: column;
@@ -74,7 +75,8 @@
       height: 36px;
       border-radius: 8px;
       object-fit: cover;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -122,7 +124,7 @@
       font-weight: 700;
       font-size: 0.85rem;
       padding: 4px 16px;
-      border-bottom: 2px solid var(--orange-accent);
+      border-bottom: 2px solid var(--purple-main);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -148,9 +150,9 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      color: var(--accent-gold);
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      color: var(--purple-light);
       font-size: 0.8rem;
       font-weight: 700;
       padding: 6px 14px;
@@ -168,8 +170,8 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(168, 85, 247, 0.2);
       color: #d1d5db;
       font-size: 0.75rem;
       padding: 6px 12px;
@@ -178,14 +180,14 @@
 
     /* Karta Bitwy 1v1 / Community Poll */
     .poll-card {
-      background: #10121a;
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      background: #100d1a;
+      border: 1px solid rgba(168, 85, 247, 0.35);
       border-radius: 16px;
       padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(168, 85, 247, 0.15);
     }
 
     .poll-badge {
@@ -194,7 +196,7 @@
       gap: 6px;
       font-size: 0.75rem;
       font-weight: 800;
-      color: var(--orange-accent);
+      color: var(--purple-light);
       letter-spacing: 0.8px;
       text-transform: uppercase;
     }
@@ -230,13 +232,14 @@
       transition: all 0.2s ease;
     }
 
-    .poll-option:hover {
-      background: rgba(255, 255, 255, 0.06);
+    .poll-option:hover, .poll-option:active {
+      background: rgba(168, 85, 247, 0.1);
+      border-color: rgba(168, 85, 247, 0.4);
     }
 
     .poll-option.selected {
-      border-color: var(--orange-accent);
-      background: rgba(255, 152, 0, 0.08);
+      border-color: var(--purple-main);
+      background: rgba(168, 85, 247, 0.15);
     }
 
     .poll-radio {
@@ -252,14 +255,14 @@
     }
 
     .poll-option.selected .poll-radio {
-      border-color: var(--orange-accent);
+      border-color: var(--purple-light);
     }
 
     .poll-radio-inner {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--orange-accent);
+      background: var(--purple-light);
       display: none;
     }
 
@@ -290,14 +293,14 @@
       width: 100%;
       padding: 12px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      background: var(--purple-gradient);
       border: none;
       color: #ffffff;
       font-weight: 800;
       font-size: 0.9rem;
       cursor: pointer;
-      margin-top: 6px;
-      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+      margin-top: 4px;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
       transition: all 0.2s ease;
     }
 
@@ -314,6 +317,7 @@
       gap: 10px;
     }
 
+    /* Efekt przytrzymania i najechania na kartę postaci */
     .card {
       background: var(--card-bg);
       border-radius: 14px;
@@ -323,12 +327,21 @@
       justify-content: space-between;
       border: 1px solid rgba(255, 255, 255, 0.06);
       cursor: pointer;
-      transition: transform 0.2s ease, background 0.15s ease;
+      transition: all 0.2s ease;
     }
 
-    .card:active {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.25);
+    .card:hover, .card:active {
+      background: rgba(168, 85, 247, 0.1);
+      border-color: var(--purple-main);
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.3);
+    }
+
+    .card:hover .name, .card:active .name {
+      color: var(--purple-light);
+    }
+
+    .card:hover .arrow, .card:active .arrow {
+      color: var(--purple-light);
     }
 
     .card-left {
@@ -351,19 +364,20 @@
     }
 
     .rank-1 {
-      background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #996515 100%);
-      color: #000000;
+      background: linear-gradient(135deg, #e9d5ff 0%, #a855f7 50%, #581c87 100%);
+      color: #ffffff;
       font-weight: 900;
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
     }
 
     .rank-2 {
-      background: linear-gradient(135deg, #ffffff 0%, #b4c0d0 50%, #6b7c96 100%);
-      color: #000000;
+      background: linear-gradient(135deg, #cbd5e1 0%, #64748b 100%);
+      color: #ffffff;
       font-weight: 900;
     }
 
     .rank-3 {
-      background: linear-gradient(135deg, #f8a571 0%, #b85d19 50%, #6e3006 100%);
+      background: linear-gradient(135deg, #a78bfa 0%, #4c1d95 100%);
       color: #ffffff;
       font-weight: 900;
     }
@@ -390,6 +404,7 @@
       font-size: 0.95rem;
       font-weight: 700;
       color: var(--text);
+      transition: color 0.2s ease;
     }
 
     .subtext {
@@ -409,9 +424,9 @@
       font-weight: 800;
       padding: 4px 8px;
       border-radius: 8px;
-      background: rgba(245, 158, 11, 0.15);
-      color: var(--accent-gold);
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--purple-light);
+      border: 1px solid rgba(168, 85, 247, 0.3);
     }
 
     .aura-pill.locked {
@@ -424,6 +439,7 @@
       font-size: 1.3rem;
       color: #4b5563;
       font-weight: bold;
+      transition: color 0.2s ease;
     }
 
     .modal {
@@ -439,15 +455,15 @@
     }
 
     .modal-content {
-      background: #14161d;
+      background: #12101c;
       width: 100%;
       max-width: 360px;
       border-radius: 18px;
       padding: 24px;
       position: relative;
-      border: 1px solid var(--purple-accent);
+      border: 1px solid var(--purple-main);
       text-align: center;
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.25);
     }
 
     .close-btn {
@@ -472,7 +488,7 @@
       align-items: center;
       justify-content: center;
       font-size: 2.2rem;
-      border: 2px solid var(--purple-accent);
+      border: 2px solid var(--purple-main);
     }
 
     .modal-stats {
@@ -482,7 +498,7 @@
       padding: 10px;
       border-radius: 12px;
       margin: 12px 0;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(168, 85, 247, 0.15);
     }
 
     .stat-box {
@@ -501,12 +517,12 @@
     .stat-value {
       font-size: 1.05rem;
       font-weight: 800;
-      color: var(--accent-gold);
+      color: var(--purple-light);
       margin-top: 2px;
     }
 
     .vote-btn {
-      background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+      background: var(--purple-gradient);
       color: #fff;
       border: none;
       padding: 10px 18px;
@@ -518,22 +534,13 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35);
     }
 
     .vote-btn.voted {
       background: rgba(255, 255, 255, 0.1);
       color: var(--subtext);
       box-shadow: none;
-    }
-
-    .vote-btn:disabled, .vote-btn.disabled {
-      background: rgba(255, 255, 255, 0.08) !important;
-      color: var(--subtext) !important;
-      cursor: not-allowed !important;
-      box-shadow: none !important;
-      transform: none !important;
-      pointer-events: none !important;
     }
 
     .modal-body {
@@ -590,8 +597,8 @@
 
           <div class="poll-option" id="poll-opt-2" onclick="selectPollOption('chad_2')">
             <div class="poll-radio"><div class="poll-radio-inner"></div></div>
-            <div id="poll-avatar-2" class="poll-avatar">❓</div>
-            <span class="poll-name" id="poll-name-2">Kandydat B</span>
+            <div id="poll-avatar-2" class="poll-avatar">🗿</div>
+            <span class="poll-name" id="poll-name-2">Marin Kitagawa</span>
           </div>
         </div>
 
@@ -647,31 +654,55 @@
 
     const AURA_VALUES = ["99.9", "98.4", "96.5", "94.0", "92.1", "90.5", "88.2", "86.0", "84.7", "82.0"];
 
-    // Konfiguracja starcia 1v1 o pozycję
+    // Pojedynek 1v1 – rywalizacja o wyższe miejsce
     const pollConfig = {
       targetRank: 1,
       candidate1Id: "chad_1",
       candidate2Id: "chad_2"
     };
 
+    // Miejsca #1 i #2 w rankingu mają 'locked: true', aby były ukryte na liście i w modalach
     const chadsData = [
       {
         id: "chad_1",
         rank: 1,
-        locked: false,
+        locked: true,
         name: "Jan Kowalski",
         titlePl: "Legenda polskiej sieci",
         titleEn: "Polish Internet Legend",
         img: "https://via.placeholder.com/150",
         aura: "99.9",
         votes: 0,
-        descPl: "Oficjalny numer 1 w Polsce. Legendarna aura i genialny content.",
-        descEn: "Official #1 in Poland. Legendary aura and top-tier content."
+        descPl: "Uczestnik bitwy 1v1.",
+        descEn: "1v1 Battle participant."
       },
-      { id: "chad_2", rank: 2, locked: false, name: "Marin Kitagawa", titlePl: "", titleEn: "", img: "", aura: "98.4", votes: 0, descPl: "", descEn: "" },
-      { id: "chad_3", rank: 3, locked: false, name: "Kira", titlePl: "", titleEn: "", img: "", aura: "96.5", votes: 0, descPl: "", descEn: "" },
-      { id: "chad_4", rank: 4, locked: false, name: "Light Yagami", titlePl: "", titleEn: "", img: "", aura: "94.0", votes: 0, descPl: "", descEn: "" },
-      { id: "chad_5", rank: 5, locked: false, name: "Zeta", titlePl: "", titleEn: "", img: "", aura: "92.1", votes: 0, descPl: "", descEn: "" },
+      {
+        id: "chad_2",
+        rank: 2,
+        locked: true,
+        name: "Marin Kitagawa",
+        titlePl: "Rywale 1v1",
+        titleEn: "1v1 Challenger",
+        img: "https://via.placeholder.com/150",
+        aura: "98.4",
+        votes: 0,
+        descPl: "Uczestnik bitwy 1v1.",
+        descEn: "1v1 Battle participant."
+      },
+      {
+        id: "chad_3",
+        rank: 3,
+        locked: false,
+        name: "Kira",
+        titlePl: "Pretendent",
+        titleEn: "Contender",
+        img: "https://via.placeholder.com/150",
+        aura: "96.5",
+        votes: 0,
+        descPl: "Ujawniony Chad #3 – gromadzi głosy na żywo.",
+        descEn: "Revealed Chad #3 – accumulating live votes."
+      },
+      { id: "chad_4", rank: 4, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "94.0", votes: 0, descPl: "", descEn: "" },
       { id: "chad_5", rank: 5, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "92.1", votes: 0, descPl: "", descEn: "" },
       { id: "chad_6", rank: 6, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "90.5", votes: 0, descPl: "", descEn: "" },
       { id: "chad_7", rank: 7, locked: true, name: "", titlePl: "", titleEn: "", img: "", aura: "88.2", votes: 0, descPl: "", descEn: "" },
@@ -692,7 +723,6 @@
         stVotes: "Głosy",
         btnVote: "🔥 Daj Głos",
         btnVoted: "✅ Zagłosowano",
-        btnLocked: "🔒 Głosowanie zablokowane",
         pollTitle: "Kto powinien zająć miejsce #" + pollConfig.targetRank + "?",
         pollVotesSub: " oddanych głosów",
         pollBtnVote: "Zagłosuj",
@@ -709,7 +739,6 @@
         stVotes: "Votes",
         btnVote: "🔥 Upvote",
         btnVoted: "✅ Voted",
-        btnLocked: "🔒 Voting locked",
         pollTitle: "Who should be #" + pollConfig.targetRank + " Ranked Chad?",
         pollVotesSub: " votes cast",
         pollBtnVote: "Vote",
@@ -788,22 +817,22 @@
       const c2 = chadsData.find(c => c.id === pollConfig.candidate2Id);
 
       if (c1) {
-        document.getElementById("poll-name-1").innerText = c1.locked ? i18n[currentLang].unrevealedName : c1.name;
+        document.getElementById("poll-name-1").innerText = c1.name;
         const img1 = document.getElementById("poll-avatar-1");
-        if (!c1.locked && c1.img) {
+        if (c1.img) {
           img1.innerHTML = '<img src="' + c1.img + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
         } else {
-          img1.innerText = "❓";
+          img1.innerText = "🗿";
         }
       }
 
       if (c2) {
-        document.getElementById("poll-name-2").innerText = c2.locked ? i18n[currentLang].unrevealedName : c2.name;
+        document.getElementById("poll-name-2").innerText = c2.name;
         const img2 = document.getElementById("poll-avatar-2");
-        if (!c2.locked && c2.img) {
+        if (c2.img) {
           img2.innerHTML = '<img src="' + c2.img + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
         } else {
-          img2.innerText = "❓";
+          img2.innerText = "🗿";
         }
       }
 
@@ -812,10 +841,6 @@
     }
 
     function selectPollOption(candidateId) {
-      const chad = chadsData.find(c => c.id === candidateId);
-      // Wykluczanie głosowania w bitwie na zablokowane postacie
-      if (chad && chad.locked) return;
-
       const hasVoted = localStorage.getItem("poll_voted_" + getWeekIdentifier()) === "1";
       if (hasVoted) return;
 
@@ -848,8 +873,6 @@
 
     function castPollVote() {
       if (!selectedPollCandidateId) return;
-      const chad = chadsData.find(c => c.id === selectedPollCandidateId);
-      if (!chad || chad.locked) return;
 
       const weekKey = getWeekIdentifier();
       const hasVoted = localStorage.getItem("poll_voted_" + weekKey) === "1";
@@ -886,6 +909,7 @@
       renderRankings();
     }
 
+    // Wyliczanie miejsc w rankingu na podstawie zebranych głosów w tygodniu
     function triggerWeeklyReset() {
       const currentWeekId = getWeekIdentifier();
 
@@ -1017,16 +1041,13 @@
       const btn = document.getElementById("btnVote");
       const chad = chadsData.find(function(c) { return c.id === id; });
 
-      // Ścisłe blokowanie głosowania dla nieujawnionych postaci
+      // Ukrywanie przycisku głosowania dla postaci nieujawnionych (locked: true)
       if (!chad || chad.locked) {
-        btn.disabled = true;
-        btn.classList.add("disabled");
-        document.getElementById("txt-vote").innerText = i18n[currentLang].btnLocked;
+        btn.style.display = "none";
         return;
       }
 
-      btn.disabled = false;
-      btn.classList.remove("disabled");
+      btn.style.display = "inline-flex";
       const hasVoted = getStoredVotes(id) > 0;
       
       if (hasVoted) {
@@ -1042,7 +1063,6 @@
       if (!activeChadId) return;
       const chad = chadsData.find(function(c) { return c.id === activeChadId; });
       
-      // Dodatkowa weryfikacja uniemożliwiająca oddanie głosu na zablokowane postacie
       if (!chad || chad.locked) return;
 
       const hasVoted = getStoredVotes(activeChadId) > 0;
