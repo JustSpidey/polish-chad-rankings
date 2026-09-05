@@ -366,6 +366,50 @@
       align-items: center;
       gap: 12px;
     }
+    
+    /* ... Twoje dotychczasowe style CSS ... */
+
+    /* Złote podświetlenie wybranej opcji przed zagłosowaniem */
+    .poll-option.selected {
+      border-color: #eab308 !important;
+      background-color: rgba(234, 179, 8, 0.08) !important;
+    }
+
+    /* Stan po oddaniu głosu (złota ramka + tło) */
+    .poll-option.voted {
+      border: 2px solid #eab308 !important;
+      background-color: rgba(234, 179, 8, 0.15) !important;
+      cursor: default !important;
+    }
+
+    /* Ukrycie domyślnego kropkowego radio-buttona i zastąpienie go ptaszkiem ✓ */
+    .poll-option.voted .poll-radio {
+      border-color: #eab308 !important;
+      background-color: #eab308 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .poll-option.voted .poll-radio::after {
+      content: "✓";
+      color: #000000;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .poll-option.voted .poll-radio-inner {
+      display: none;
+    }
+
+    /* Wygląd zablokowanego przycisku "Zagłosowano" */
+    .poll-vote-btn.disabled {
+      background: #374151 !important;
+      color: #9ca3af !important;
+      cursor: not-allowed !important;
+      border: 1px solid #4b5563 !important;
+      box-shadow: none !important;
+    }
 
     /* MEDALE KOLEJNOŚCI (#1 Złoty, #2 Srebrny, #3 Miedziany) */
     .rank-box {
