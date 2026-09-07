@@ -1204,59 +1204,6 @@
 
       const revealed = isPollRevealed();
 
-      opt1.classList.remove("selected", "voted", "disabled-option");
-      opt2.classList.remove("selected", "voted", "disabled-option");
-
-      if (hasVoted) {
-        if (revealed) {
-          res1.style.display = "flex";
-          res2.style.display = "flex";
-
-          document.getElementById("poll-pct-1").innerText = pct1 + "%";
-          document.getElementById("poll-cnt-1").innerText = "(" + v1 + ")";
-          document.getElementById("poll-pct-2").innerText = pct2 + "%";
-          document.getElementById("poll-cnt-2").innerText = "(" + v2 + ")";
-
-          bar1.style.width = pct1 + "%";
-          bar2.style.width = pct2 + "%";
-        } else {
-          res1.style.display = "none";
-          res2.style.display = "none";
-          bar1.style.width = "0%";
-          bar2.style.width = "0%";
-        }
-
-        if (votedCandidate === pollConfig.candidate1Id) {
-          opt1.classList.add("voted");
-          opt2.classList.add("disabled-option");
-        } else if (votedCandidate === pollConfig.candidate2Id) {
-          opt2.classList.add("voted");
-          opt1.classList.add("disabled-option");
-        } else {
-          opt1.classList.add("disabled-option");
-          opt2.classList.add("disabled-option");
-        }
-
-        btn.disabled = true;
-        btn.classList.add("voted");
-        document.getElementById("txt-poll-btn").innerText = i18n[currentLang].pollBtnVoted;
-      } else {
-        res1.style.display = "none";
-        res2.style.display = "none";
-        bar1.style.width = "0%";
-        bar2.style.width = "0%";
-
-        if (selectedPollCandidateId === pollConfig.candidate1Id) {
-          opt1.classList.add("selected");
-        } else if (selectedPollCandidateId === pollConfig.candidate2Id) {
-          opt2.classList.add("selected");
-        }
-        btn.disabled = !selectedPollCandidateId;
-        btn.classList.remove("voted");
-        document.getElementById("txt-poll-btn").innerText = i18n[currentLang].pollBtnVote;
-      }
-    }
-
     function castPollVote() {
       if (!selectedPollCandidateId) return;
 
