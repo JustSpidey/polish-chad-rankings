@@ -1169,29 +1169,37 @@
     }
 
     function updatePollUI() {
-      const weekKey = getWeekIdentifier();
-      const votedCandidate = localStorage.getItem("poll_voted_candidate_" + weekKey);
-      const hasVoted = !!votedCandidate || localStorage.getItem("poll_voted_" + weekKey) === "1";
+  const bar1 = document.getElementById("poll-bar-1");
+  const bar2 = document.getElementById("poll-bar-2");
+  const btn = document.getElementById("btnPollVote");
 
-      const opt1 = document.getElementById("poll-opt-1");
-      const opt2 = document.getElementById("poll-opt-2");
-      const btn = document.getElementById("btnPollVote");
+  // --- WPISZ TUTAJ SWOJE STATYCZNE WYNIKIAN KIETY ---
+  const v1 = 170; // Liczba głosów na pierwszego kandydata (Luka)
+  const v2 = 96;  // Liczba głosów na drugiego kandydata (Ten od Midasa)
+  // --------------------------------------------------
 
-      const bar1 = document.getElementById("poll-bar-1");
-      const bar2 = document.getElementById("poll-bar-2");
-      const res1 = document.getElementById("poll-result-1");
-      const res2 = document.getElementById("poll-result-2");
+  const total = v1 + v2;
 
-      const v1 = currentVotesCache[pollConfig.candidate1Id] || 0;
-      const v2 = currentVotesCache[pollConfig.candidate2Id] || 0;
-      const total = v1 + v2;
+  let pct1 = 0;
+  let pct2 = 0;
+  if (total > 0) {
+    pct1 = Math.round((v1 / total) * 100);
+    pct2 = 100 - pct1;
+  }
 
-      let pct1 = 0;
-      let pct2 = 0;
-      if (total > 0) {
-        pct1 = Math.round((v1 / total) * 100);
-        pct2 = 100 - pct1;
-      }
+  document.getElementById("poll-pct-1").innerText = pct1 + "%";
+  document.getElementById("poll-cnt-1").innerText = "(" + v1 + ")";
+  document.getElementById("poll-pct-2").innerText = pct2 + "%";
+  document.getElementById("poll-cnt-2").innerText = "(" + v2 + ")";
+
+  bar1.style.width = pct1 + "%";
+  bar2.style.width = pct2 + "%";
+
+  document.getElementById("txt-poll-sub").innerText = total + i18n[currentLang].pollVotesSub;
+  document.getElementById("txt-poll-btn").innerText = i18n[currentLang].pollBtnEnded;
+  btn.disabled = true;
+    }
+    
 
       const revealed = isPollRevealed();
 
