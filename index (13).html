@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="-oGEEEyoPbsyOVH7EOF3pAKPJ49IxacUo1LY5g5sgoA" />
+  <meta name="google-site-verification" content="pm96BuydbJw4945mbLTlRTScgiGLVAlV4mWQkt5Y25Y" />
+  <meta name="description" content="Cotygodniowy ranking najbardziej wpływowych chadów w polskiej społeczności. Głosuj na faworytów!">
+  <meta property="og:title" content="Polish Chad Rankings">
+  <meta property="og:description" content="Głosuj na najbardziej wpływowych chadów w polskiej społeczności!">
+  <meta property="og:image" content="https://polish-chad-rankings.netlify.app/MORPH.jpg">
+  <title>Polish Chad Rankings</title>
+
+  <!-- Biblioteki Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --bg: radial-gradient(circle at top, #1e0c38 0%, #08070c 100%);
+      --card-bg: #12111a;
+      --purple-main: #a855f7;
+      --purple-light: #c084fc;
+      --purple-gradient: linear-gradient(135deg, #a855f7 0%, #6b21a8 100%);
+      --gold-accent: #facc15;
+      --text: #ffffff;
+      --subtext: #8e8d9f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: #08070c;
+      background-image: var(--bg);
+      background-attachment: fixed;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 32px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(12, 10, 20, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .header-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text);
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .flag-btn {
+      font-size: 1.3rem;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: all 0.2s ease;
+      filter: grayscale(40%);
+    }
+
+    .flag-btn.active {
+      opacity: 1;
+      transform: scale(1.15);
+      filter: grayscale(0%);
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .tab {
+      color: var(--subtext);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-bottom: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      color: var(--text);
+      border-bottom-color: var(--purple-main);
+    }
+
+    .content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .hero-section {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+    }
+
+    .badge-updated {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      color: var(--purple-light);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .hero-description {
+      font-size: 0.85rem;
+      color: var(--subtext);
+      line-height: 1.4;
+      max-width: 320px;
+    }
+
+    .badge-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      color: #d1d5db;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+
+    /* Bitwa 1v1 / Community Poll */
+    .poll-card {
+      background: #100d1a;
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(168, 85, 247, 0.15);
+    }
+
+    .poll-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--purple-light);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .poll-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    .poll-subtitle {
+      font-size: 0.78rem;
+      color: var(--subtext);
+      line-height: 1.3;
+    }
+
+    .poll-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .poll-option {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    /* Wypełnienie procentowe (Progress Bar) */
+    .poll-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(168, 85, 247, 0.35) 0%, rgba(168, 85, 247, 0.2) 100%);
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 11px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .poll-left-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .poll-result-info {
+      position: relative;
+      z-index: 2;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .poll-percent {
+      color: var(--purple-light);
+      font-weight: 800;
+    }
+
+    .poll-count {
+      color: var(--subtext);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .poll-option:hover, .poll-option:active {
+      background: rgba(168, 85, 247, 0.1);
+      border-color: rgba(168, 85, 247, 0.4);
+    }
+
+    .poll-option.selected {
+      border-color: var(--purple-main);
+      background: rgba(168, 85, 247, 0.15);
+    }
+
+    .poll-radio {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--subtext);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .poll-option.selected .poll-radio {
+      border-color: var(--purple-light);
+    }
+
+    .poll-radio-inner {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--purple-light);
+      display: none;
+    }
+
+    .poll-option.selected .poll-radio-inner {
+      display: block;
+    }
+
+    .poll-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .poll-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #ffffff;
+      transition: color 0.2s ease;
+    }
+
+    /* Wygląd opcji po oddaniu głosu */
+    .poll-option.voted {
+      border: 1.5px solid var(--purple-light) !important;
+      background: rgba(168, 85, 247, 0.12) !important;
+      box-shadow: 0 0 14px rgba(168, 85, 247, 0.2);
+      cursor: default !important;
+    }
+
+    .poll-option.voted .poll-name {
+      color: var(--purple-light);
+      font-weight: 800;
+    }
+
+    .poll-option.voted .poll-radio {
+      border-color: var(--purple-light) !important;
+      background-color: var(--purple-main) !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .poll-option.voted .poll-radio::after {
+      content: "✓";
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 11px;
+    }
+
+    .poll-option.voted .poll-radio-inner {
+      display: none;
+    }
+
+    .poll-option.disabled-option {
+      opacity: 0.6;
+      cursor: default !important;
+      pointer-events: none;
+    }
+
+    .poll-vote-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--purple-gradient);
+      border: none;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 4px;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .poll-vote-btn:disabled, .poll-vote-btn.voted {
+      background: rgba(255, 255, 255, 0.08) !important;
+      color: var(--subtext) !important;
+      cursor: not-allowed !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: none !important;
+    }
+
+    /* Lista rankingowa */
+    .rankings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .card:hover, .card:active {
+      background: rgba(168, 85, 247, 0.1);
+      border-color: var(--purple-main);
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.3);
+    }
+
+    .card:hover .name, .card:active .name {
+      color: var(--purple-light);
+    }
+
+    .card:hover .arrow, .card:active .arrow {
+      color: var(--purple-light);
+    }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rank-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .rank-1 {
+      background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%);
+      color: #000000;
+      box-shadow: 0 2px 10px rgba(250, 204, 21, 0.3);
+    }
+
+    .rank-2 {
+      background: linear-gradient(180deg, #f1f5f9 0%, #94a3b8 100%);
+      color: #000000;
+      box-shadow: 0 2px 10px rgba(241, 245, 249, 0.25);
+    }
+
+    .rank-3 {
+      background: linear-gradient(180deg, #d97706 0%, #78350f 100%);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(217, 119, 6, 0.3);
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--subtext);
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      transition: color 0.2s ease;
+    }
+
+    .subtext {
+      font-size: 0.75rem;
+      color: var(--subtext);
+      margin-top: 2px;
+    }
+
+    .card-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .aura-pill {
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--purple-light);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .aura-pill.locked {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--subtext);
+      border: none;
+    }
+
+    .arrow {
+      font-size: 1.3rem;
+      color: #4b5563;
+      font-weight: bold;
+      transition: color 0.2s ease;
+    }
+
+    /* SEKCJA HALL OF FAME */
+    .hof-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .hof-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hof-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hof-subtitle {
+      font-size: 0.8rem;
+      color: var(--subtext);
+    }
+
+    .hof-card {
+      background: #0d0c14;
+      border: 1px solid #ca8a04;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(202, 138, 4, 0.15);
+    }
+
+    .hof-img-wrapper {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .hof-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .legend-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(202, 138, 4, 0.3);
+      border: 1px solid #facc15;
+      color: #facc15;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    .hof-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hof-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #facc15;
+    }
+
+    .hof-role {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #eab308;
+    }
+
+    .hof-desc {
+      font-size: 0.8rem;
+      color: var(--subtext);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: #12101c;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 18px;
+      padding: 24px;
+      position: relative;
+      border: 1px solid var(--purple-main);
+      text-align: center;
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.25);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--subtext);
+      cursor: pointer;
+    }
+
+    .modal-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 auto 12px auto;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      border: 2px solid var(--purple-main);
+    }
+
+    .modal-stats {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 12px;
+      margin: 12px 0;
+      border: 1px solid rgba(168, 85, 247, 0.15);
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-title {
+      font-size: 0.7rem;
+      color: var(--subtext);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--purple-light);
+      margin-top: 2px;
+    }
+
+    .vote-btn {
+      background: var(--purple-gradient);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35);
+    }
+
+    .vote-btn.voted {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--subtext);
+      box-shadow: none;
+    }
+
+    .modal-body {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--subtext);
+      line-height: 1.4;
+      min-height: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <div class="header-top">
+        <div class="header-logo">
+          <img src="MORPH.jpg" alt="Logo">
+        </div>
+        <h1>POLISH CHAD RANKINGS</h1>
+        <div class="lang-switch">
+          <span class="flag-btn active" id="flag-pl" onclick="setLanguage('pl')">🇵🇱</span>
+          <span class="flag-btn" id="flag-en" onclick="setLanguage('en')">🇬🇧</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <a href="#" class="tab active" id="txt-tab-rankings">📋 Rankingi</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="hero-section">
+        <div class="badge-updated" id="timer-text">⏱️ Ładowanie timera...</div>
+        <p class="hero-description" id="txt-hero">
+          Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.
+        </p>
+        <div class="badge-verified" id="txt-verified">🎗️ Zweryfikowano przez Polish Chad Association</div>
+      </section>
+
+      <!-- Bitwa 1v1 / Community Poll -->
+      <section class="poll-card">
+        <div class="poll-badge">
+          <span>📊</span>
+          <span id="txt-poll-badge">ANKIETA SPOŁECZNA</span>
+        </div>
+        <h2 class="poll-title" id="txt-poll-title">Kto powinien zająć miejsce #1?</h2>
+        <div class="poll-subtitle" id="txt-poll-sub">0 oddanych głosów</div>
+
+        <div class="poll-options">
+          <div class="poll-option" id="poll-opt-1" onclick="selectPollOption('chad_1')">
+            <div class="poll-bar" id="poll-bar-1"></div>
+            <div class="poll-left-content">
+              <div class="poll-radio"><div class="poll-radio-inner"></div></div>
+              <div id="poll-avatar-1" class="poll-avatar">🗿</div>
+              <span class="poll-name" id="poll-name-1">Luka</span>
+            </div>
+            <div class="poll-result-info" id="poll-result-1">
+              <span class="poll-percent" id="poll-pct-1">0%</span>
+              <span class="poll-count" id="poll-cnt-1">(0)</span>
+            </div>
+          </div>
+
+          <div class="poll-option" id="poll-opt-2" onclick="selectPollOption('chad_2')">
+            <div class="poll-bar" id="poll-bar-2"></div>
+            <div class="poll-left-content">
+              <div class="poll-radio"><div class="poll-radio-inner"></div></div>
+              <div id="poll-avatar-2" class="poll-avatar">🗿</div>
+              <span class="poll-name" id="poll-name-2">Ten od Midasa</span>
+            </div>
+            <div class="poll-result-info" id="poll-result-2">
+              <span class="poll-percent" id="poll-pct-2">0%</span>
+              <span class="poll-count" id="poll-cnt-2">(0)</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="poll-vote-btn" id="btnPollVote" onclick="castPollVote()">
+          <span id="txt-poll-btn">Zagłosuj</span>
+        </button>
+      </section>
+
+      <!-- Główny ranking -->
+      <section class="rankings-list" id="rankings"></section>
+
+      <!-- Sekcja Hall of Fame -->
+      <section class="hof-section">
+        <div class="hof-header">
+          <h2 class="hof-title" id="txt-hof-title">👑 Sala Sław</h2>
+          <p class="hof-subtitle" id="txt-hof-sub">Legendy wycofane z aktywnego rankingu.</p>
+        </div>
+        <div id="hofContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <div id="modalAvatarContainer"></div>
+      <h2 id="modalName"></h2>
+      <p id="modalTitle" style="color: var(--subtext); font-size: 0.8rem; margin-top: 2px;"></p>
+      
+      <div class="modal-stats">
+        <div class="stat-box">
+          <span class="stat-title" id="st-rank">Ranga</span>
+          <span class="stat-value" id="modalStatRank">#1</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-title">Aura Score</span>
+          <span class="stat-value" id="modalStatAura">99.9</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-title" id="st-votes">Głosy</span>
+          <span class="stat-value" id="modalStatVotes">0</span>
+        </div>
+      </div>
+
+      <button class="vote-btn" id="btnVote" onclick="castVote()">
+        <span id="txt-vote">🔥 Daj Głos</span>
+      </button>
+
+      <div class="modal-body" id="modalDesc"></div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AlzaSyCJDcay4pyauLgGQLloTrf1kp2GjXoQmTA",
+      authDomain: "https://polish-chad-rankings.firebaseapp.com",
+      databaseURL: "https://polish-chad-rankings-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "polish-chad-rankings",
+      storageBucket: "https://polish-chad-rankings.firebasestorage.app",
+      messagingSenderId: "941798583866",
+      appId: "1:941798583866:web:d79633db32004e07c74f03"
+    };
+
+    const AURA_VALUES = [
+      "99.9", "98.4", "96.5", "94.0", "92.1", 
+      "90.5", "88.2", "86.0", "84.7", "82.0", 
+      "80.0", "78.2", "76.5", "74.1", "72.0", 
+      "69.5", "67.2", "65.0", "62.4", "60.0"
+    ];
+
+    const pollConfig = {
+      targetRank: 1,
+      candidate1Id: "chad_1",
+      candidate2Id: "chad_2"
+    };
+
+    const chadsData = [
+      {
+        id: "chad_1",
+        rank: 1,
+        locked: false,
+        name: "Luka",
+        titlePl: "Polski Vasily Stepanov",
+        titleEn: "Polish Vasily Stepanov",
+        img: "L.jpg",
+        aura: "99.9",
+        votes: 0,
+        descPl: "Luka to absolutna ikona numer 1 i absolutny filar polskiej sceny looksmaxxingowej. Wyznacza nienaruszalne standardy w podziemiu estetyki, bezustannie zadowalając widzów genialnym kośćcem twarzy, podręcznikowym profilem oraz doskonałymi proporcjami. To bezdyskusyjny lider i wyznacznik wyższych sfer PSL, na którym wzoruje się całe młodociane pokolenie walczące o własny glow-up.",
+        descEn: "Luka is the undisputed number-one icon and a true pillar of the Polish looksmaxxing scene. He sets the gold standard within the aesthetics underground, constantly impressing his audience with a brilliant facial bone structure, a textbook profile, and perfect proportions. He is the unquestionable leader and a benchmark of the PSL elite role model for the entire generation of young men striving for their own glow-up."
+      },
+      {
+        id: "chad_2",
+        rank: 2,
+        locked: false,
+        name: "Ten od Midasa",
+        titlePl: "Prawdziwy Gymcell",
+        titleEn: "True Gymcell",
+        img: "TOM.jpg",
+        aura: "98.4",
+        votes: 0,
+        descPl: "Midas to jeden z najbardziej charyzmatycznych i zabawnych twórców w polskim podziemiu estetycznym. Zgromadził wokół siebie ogromną społeczność wiernych fanów, bezbłędnie łącząc świetny wygląd z dystansem do siebie i genialnym poczuciem humoru. Jego niesamowite ascension oraz dopracowana aparycja nieustannie zadowalają widownię, udowadniając, że potężne walory estetyczne idą w parze z unikalną charyzmą.",
+        descEn: "Midas is one of the most charismatic and entertaining creators in the Polish aesthetic underground. He has built a massive community of loyal fans by flawlessly combining a striking appearance with self-deprecating humor and a brilliant wit. His incredible ascension and polished look consistently delight his audience, proving that powerful aesthetic appeal goes hand in hand with unique charisma."
+      },
+      {
+        id: "chad_3",
+        rank: 3,
+        locked: false,
+        name: "Elomordo",
+        titlePl: "Bóg CPS i Estetyki",
+        titleEn: "The God of CPS and Aesthetics",
+        img: "EM.jpg",
+        aura: "96.5",
+        votes: 0,
+        descPl: "Elomordo zasłynął na scenie ze swoich niesamowitych zdolności. Zadowala swoim rekordem CPS w Minecraft. Jego dbałość o estetykę w każdym detalu przyniosła mu ogromny szacunek.",
+        descEn: "Elomordo made a name for himself on the scene thanks to his incredible skills. He impresses with his Minecraft CPS record. His attention to aesthetic detail has earned him immense respect."
+      },
+      { id: "chad_4", rank: 4, locked: false, name: "Borys", titlePl: "Prawdziwy Miłośnik Kwasu Azelainowego", titleEn: "True Azelaic Acid Enjoyer", img: "BOR.jpg", aura: "94.0", votes: 0, descPl: "Borys to żywa legenda i koronny dowód na potęgę konsekwentnego skincare'u. W zaledwie 3 miesiące przeszedł ekstremalny glow-up – z zapryszczonego chłopca do posiadacza idealnej, szklanej cery.", descEn: "Borys is a living legend and the ultimate proof of the power of a consistent skincare routine. In just three months, he underwent an extreme glow-up—transforming from a pimply boy into someone with a flawless, glass-like complexion." },
+      { id: "chad_5", rank: 5, locked: false, name: "Wim", titlePl: "Książę Zuko", titleEn: "Prince Zuko", img: "W.jpg", aura: "92.1", votes: 0, descPl: "Wim to jedna z najbardziej intrygujących postaci w polskim podziemiu estetycznym. Choć charakterystyczna blizna na jego twarzy wciąż pozostaje owiana tajemnicą, Wim bezkompromisowo zadowala widownię wybitną proporcją twarzy oraz niesamowitą budową kości twarzowych.", descEn: "Wim is one of the most intriguing figures in the Polish underground aesthetic scene. Although the distinctive scar on his face remains shrouded in mystery, Wim unfailingly captivates audiences with his exceptional facial proportions and remarkable bone structure." },
+      { id: "chad_6", rank: 6, locked: false, name: "Szybki Adder", titlePl: "Mistrz Estetycznego Ascension", titleEn: "Master of Aesthetic Ascension", img: "SA1.jpg", aura: "90.5", votes: 0, descPl: "Szybki Adder to postać, która w ekspresowym tempie pokazała, czym jest niesamowite ascension w polskim wizerunku. Jego idealnie zbalansowana, estetyczna budowa ciała zadowala rzesze fanów, stając się definicją męskiego ideału.", descEn: "The Fast Adder is a figure who quickly demonstrated the incredible ascension in Polish image. His perfectly balanced, aesthetic physique pleases legions of fans, becoming the definition of the masculine ideal." },
+      { id: "chad_7", rank: 7, locked: false, name: "Polish Slayer", titlePl: "Prawdziwy MTN", titleEn: "True MTN", img: "PS1.jpg", aura: "88.2", votes: 0, descPl: "Polish Slayer to młody, tiktokowy looksmaxxer, który próbuje podbić polską scenę estetyczną. Na co dzień zadowala rzesze widzów swoim nieprzeciętnym wyglądem oraz wyznacza nowe standardy dla młodego pokolenia.", descEn: "Polish Slayer is a young TikTok looksmaxxer aiming to conquer the Polish aesthetics scene. He captivates legions of viewers with his exceptional looks and sets new standards for the younger generation." },
+      { id: "chad_8", rank: 8, locked: false, name: "Testoperu", titlePl: "Prawdziwy Sprzedawca Peptydów", titleEn: "True Peptide Seller", img: "T.jpg", aura: "86.0", votes: 0, descPl: "Testoperu to jedna z najbardziej wyrazistych i kontrowersyjnych postaci w polskim podziemiu estetycznym. Znany z bezkompromisowego podejścia do chemicznej optymalizacji formy, zasłynął głośną dramą wokół handlu peptydami i oferowania ich nieletnim.", descEn: "Testoperu is one of the most distinctive and controversial figures in the Polish aesthetic underground. Known for his uncompromising approach to the chemical optimization of physique, he gained notoriety amidst a major controversy surrounding the trade in peptides and their sale to minors." },
+      { id: "chad_9", rank: 9, locked: false, name: "Beft", titlePl: "Prawdziwy Nastolatek", titleEn: "True Teen", img: "BEF.jpg", aura: "84.7", votes: 0, descPl: "Beft to wciąż mało znana, ale niezwykle obiecująca postać w polskim podziemiu estetycznym, która zdecydowanie zasługuje na znacznie większą uwagę. Jako autentyczny „Prawdziwy Nastolatek” bezustannie zadowala widzów dopracowaną, estetyczną sylwetką oraz młodzieńczym potencjałem.", descEn: "Beft remains a little-known yet incredibly promising figure in the Polish aesthetic underground who definitely deserves far more attention. A genuine „True Teen”, he consistently delights viewers with his polished, aesthetic look and youthful potential." },
+      { id: "chad_10", rank: 10, locked: false, name: "Maksym Wołczyk", titlePl: "Panienka Lekkich Obyczajów", titleEn: "A Lady of Easy Virtue", img: "MW.jpg", aura: "82.0", votes: 0, descPl: "Maksym Wołczyk zasłynął z swojej niewarygodnej pracy. W swoim stażu spędził 10 lat oraz zadowolił wiele klientów. Niestety Maksym skończył swoją karierę i przeszedł na emeryturę.", descEn: "Maksym Wołczyk became renowned for his exceptional work. Over the course of his ten-year career, he satisfied many clients. Unfortunately, Maksym has ended his career and retired." },
+      { id: "chad_11", rank: 11, locked: false, name: "Tony", titlePl: "Król Rynienki Podnosowej", titleEn: "Philtrum King", img: "TON.jpg", aura: "80.0", votes: 0, descPl: "Tony to oficjalny „Philtrum King” polskiego podziemia estetycznego, który pod opieką samego Luki przeszedł niesamowite ascension. Dzięki perfekcyjnie zachowanym proporcjom podnosowym, dociętej żuchwie i wyrazistym kościom policzkowym nieustannie zadowala widownię swoim unikalnym wyglądem. To żywy dowód na to, co potrafi przynieść odpowiedni mentoring pod skrzydłami ikony numer 1.", descEn: "Tony is the official „Philtrum King“ of the Polish aesthetic underground, having undergone an incredible transformation under the mentorship of Luka himself. With perfectly maintained sub-nasal proportions, a chiseled jawline, and striking cheekbones, he constantly delights his audience with his unique look. He is living proof of what can be achieved through proper mentoring under the wing of the number one icon." },
+      { id: "chad_12", rank: 12, locked: false, name: "Duduś", titlePl: "Ukryty Diament Podziemia", titleEn: "Hidden Diamond of the Underground", img: "DUD.jpg", aura: "78.2", votes: 0, descPl: "Duduś to wciąż mało znany, ale niezwykle obiecujący polski looksmaxxer, który po cichu wyrasta na czarnego konia całej sceny. Bezustannie zadowala widownię idealnie ostrym profilem żuchwy, czystą cerą oraz swobodnym, ulicznym klimatem. Choć dopiero walczy o większy rozgłos, jego potężny potencjał estetyczny sprawia, że zdecydowanie zasługuje na stałe miejsce w ścisłej czołówce.", descEn: "Duduś is a still-little-known but incredibly promising Polish looksmaxxer who is quietly emerging as the dark horse of the entire scene. He consistently delights his audience with a razor-sharp jawline, a clear complexion, and a laid-back street vibe. Although he is still striving for wider recognition, his immense aesthetic potential means he definitely deserves a permanent spot at the very top." },
+      { id: "chad_13", rank: 13, locked: false, name: "SSman", titlePl: "Król Rozwoju Twarzy do Przodu", titleEn: "King of Forward Facial Growth", img: "SSM.jpg", aura: "76.5", votes: 0, descPl: "SSman to mało znany, ale posiadający potężne warunki reprezentant polskiego podziemia. Prawdziwy gigant mierzący aż 201 cm wzrostu, który bezapelacyjnie dzierży miano Króla Rozwoju Twarzy do Przodu. Zadowala widownię wybitną masą kości, perfekcyjną projekcją profilu i potężną posturą. Choć działa po cichu, jego genetyczne parametry stawiają go w absolutnej czołówce czystego kośćca.", descEn: "SSman is a lesser-known yet physically imposing representative of the Polish underground scene. A true giant standing a full 6'6 ft tall, he indisputably holds the title of King of Forward Growth. He impresses audiences with exceptional bone mass, perfect profile projection, and a massive physique. Although he operates quietly, his genetic attributes place him at the absolute pinnacle when it comes to pure skeletal structure." },
+      { id: "chad_14", rank: 14, locked: false, name: "Michael Ossowski", titlePl: "Twarz High Fashion", titleEn: "The Face of High Fashion", img: "MO.jpg", aura: "74.1", votes: 0, descPl: "Michael Ossowski to profesjonalny model, który wnosi wybiegowy poziom high fashion prosto do czołówki rankingu. Bezustannie zadowala widzów hipnotyzującym spojrzeniem typu hunter eyes, idealną fryzurą oraz wyrazistym efektem hollow cheeks. Posągowa struktura kości twarzy i naturalna elegancja czynią z niego żywy dowód na to, jak wygląda prawdziwy poziom pro-modelingu.", descEn: "Michael Ossowski is a professional model who brings high-fashion runway standards to the top of the rankings. He consistently captivates audiences with his hypnotic hunter eyes, impeccable hairstyle, and striking hollow-cheeked look. His statuesque bone structure and natural elegance serve as living proof of what true professional-level modeling looks like." },
+      { id: "chad_15", rank: 15, locked: false, name: "Polubiński", titlePl: "Mistrz Mrocznej Estetyki", titleEn: "Master of Dark Aesthetics", img: "POL.jpg", aura: "72.0", votes: 0, descPl: "Polubiński to postać, która przyciąga uwagę swoim tajemniczym, mrocznym klimatem i potężną fizjonomią. Bezustannie zadowala widzów ostrą linią żuchwy, głębokim spojrzeniem typu hunter eyes oraz wyrazistym profilem. Nawet w chłodnym, stonowanym oświetleniu jego potężny kościec twarzy tworzy absolutnie bezkompromisowy, drapieżny wygląd.", descEn: "Polubiński is a figure who commands attention with his mysterious, dark aura and powerful facial structure. He consistently captivates viewers with a sharp jawline, deep-set hunter eyes, and a striking profile. Even in cool, subdued lighting, his robust bone structure creates an utterly uncompromising, predatory look." },
+    ];
+
+    const hallOfFameData = [
+      {
+        id: "hof_1",
+        name: "Mariusz Pudzianowski",
+        rolePl: "Ikona dyscypliny Strongman",
+        roleEn: "The icon of the Strongman discipline",
+        img: "MP.jpg",
+        descPl: "Symbol niezłomnego etosu pracy.",
+        descEn: "A symbol of an unwavering work ethic."
+      },
+      {
+        id: "hof_2",
+        name: "Robert Makłowicz",
+        rolePl: "Gladiator kultury i sztuki kulinarnej",
+        roleEn: "Gladiator of culture and culinary art",
+        img: "RM.jpg",
+        descPl: "Symbol bezpretensjonalnej klasy i radości z życia.",
+        descEn: "A symbol of unpretentious class and joy of life."
+      },
+      {
+        id: "hof_3",
+        name: "Jan Paweł II",
+        rolePl: "Papież Polak",
+        roleEn: "The Polish Pope",
+        img: "J.jpg",
+        descPl: "Globalny symbol duchowej siły i potężnej aury, który odmienił losy świata.",
+        descEn: "A global symbol of spiritual strength and a powerful aura that changed the fate of the world."
+      }
+    ];
+
+    const i18n = {
+      pl: {
+        timerPrefix: "⏱️ Aktualizacja za: ",
+        hero: "Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.",
+        verified: "🎗️ Zweryfikowano przez Polish Chad Association",
+        unrevealedName: "DO UJAWNIENIA",
+        unrevealedTitle: "tajemniczy chad",
+        unrevealedDesc: "Opis profilu pojawi się po oficjalnym ujawnieniu.",
+        stRank: "Ranga",
+        stVotes: "Głosy",
+        btnVote: "🔥 Daj Głos",
+        btnVoted: "✅ Zagłosowano",
+        pollTitle: "Kto powinien zająć miejsce #" + pollConfig.targetRank + "?",
+        pollVotesSub: " oddanych głosów",
+        pollHiddenNotice: "🔒 Wyniki i procenty pojawią się po aktualizacji rankingu",
+        pollBtnVote: "Zagłosuj",
+        pollBtnVoted: "✅ Oddano głos w ankiecie",
+        hofTitle: "👑 Sala Sław",
+        hofSub: "Legendy wycofane z aktywnego rankingu.",
+        legendBadge: "Legenda",
+        pollBadge: "ANKIETA SPOŁECZNA",
+        tabRankings: "📋 Rankingi"
+      },
+      en: {
+        timerPrefix: "⏱️ Update in: ",
+        hero: "Weekly-updated rankings of the most influential chads in the Polish community.",
+        verified: "🎗️ Verified by Polish Chad Association",
+        unrevealedName: "TO BE REVEALED",
+        unrevealedTitle: "mysterious chad",
+        unrevealedDesc: "Profile description will appear after the official reveal.",
+        stRank: "Rank",
+        stVotes: "Votes",
+        btnVote: "🔥 Upvote",
+        btnVoted: "✅ Voted",
+        pollTitle: "Who should be #" + pollConfig.targetRank + " Polish Ranked Chad?",
+        pollVotesSub: " votes cast",
+        pollHiddenNotice: "🔒 Results & percentages will appear after ranking update",
+        pollBtnVote: "Vote",
+        pollBtnVoted: "✅ You have already voted on this poll",
+        hofTitle: "👑 Hall of Fame",
+        hofSub: "Legends who have been retired from the active rankings.",
+        legendBadge: "Legend",
+        pollBadge: "COMMUNITY POLL",
+        tabRankings: "📋 Rankings"
+      }
+    };
+
+    let currentLang = "pl";
+    let activeChadId = null;
+    let db = null;
+    let serverLastResetWeek = null;
+    let currentVotesCache = {};
+    let selectedPollCandidateId = null;
+
+    function getWeekIdentifier() {
+      const now = new Date();
+      const nextSunday = new Date(now);
+      const daysUntilSunday = (7 - now.getDay()) % 7;
+      nextSunday.setDate(now.getDate() + daysUntilSunday);
+      nextSunday.setHours(23, 59, 59, 0);
+
+      const y = nextSunday.getFullYear();
+      const m = String(nextSunday.getMonth() + 1).padStart(2, '0');
+      const d = String(nextSunday.getDate()).padStart(2, '0');
+      return "WEEK_" + y + "_" + m + "_" + d;
+    }
+
+    function isPollRevealed() {
+      const c1 = chadsData.find(c => c.id === pollConfig.candidate1Id);
+      const c2 = chadsData.find(c => c.id === pollConfig.candidate2Id);
+      return !!(c1 && c2 && !c1.locked && !c2.locked);
+    }
+
+    function renderRankings() {
+      const container = document.getElementById("rankings");
+      if (!container) return;
+      container.innerHTML = "";
+
+      chadsData.forEach(function(chad) {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = function() { openModal(chad); };
+
+        let rankClass = "rank-box";
+        if (chad.rank === 1) rankClass += " rank-1";
+        else if (chad.rank === 2) rankClass += " rank-2";
+        else if (chad.rank === 3) rankClass += " rank-3";
+
+        const isLocked = chad.locked;
+        const nameText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
+        const subText = isLocked 
+          ? i18n[currentLang].unrevealedTitle 
+          : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
+
+        const avatarHTML = (!isLocked && chad.img) 
+          ? '<img src="' + chad.img + '" class="avatar" alt="Avatar">'
+          : '<div class="avatar">❓</div>';
+
+        const auraText = isLocked ? "🔒" : chad.aura;
+        const auraClass = isLocked ? "aura-pill locked" : "aura-pill";
+
+        card.innerHTML = 
+          '<div class="card-left">' +
+            '<div class="' + rankClass + '">' + chad.rank + '</div>' +
+            avatarHTML +
+            '<div class="info">' +
+              '<span class="name">' + nameText + '</span>' +
+              '<span class="subtext">' + subText + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-right">' +
+            '<span class="' + auraClass + '">' + auraText + '</span>' +
+            '<span class="arrow">&rsaquo;</span>' +
+          '</div>';
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderHallOfFame() {
+      const container = document.getElementById("hofContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      hallOfFameData.forEach(function(item) {
+        const role = currentLang === "pl" ? item.rolePl : item.roleEn;
+        const desc = currentLang === "pl" ? item.descPl : item.descEn;
+
+        const card = document.createElement("div");
+        card.className = "hof-card";
+
+        card.innerHTML = 
+          '<div class="hof-img-wrapper">' +
+            '<img src="' + item.img + '" class="hof-img" alt="' + item.name + '">' +
+            '<span class="legend-badge">' + i18n[currentLang].legendBadge + '</span>' +
+          '</div>' +
+          '<div class="hof-content">' +
+            '<h3 class="hof-name">' + item.name + '</h3>' +
+            '<span class="hof-role">' + role + '</span>' +
+            '<p class="hof-desc">' + desc + '</p>' +
+          '</div>';
+
+        container.appendChild(card);
+      });
+    }
+
+    function setupPollUI() {
+      const c1 = chadsData.find(c => c.id === pollConfig.candidate1Id);
+      const c2 = chadsData.find(c => c.id === pollConfig.candidate2Id);
+
+      if (c1) {
+        document.getElementById("poll-name-1").innerText = c1.name;
+        const img1 = document.getElementById("poll-avatar-1");
+        if (c1.img) {
+          img1.innerHTML = '<img src="' + c1.img + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+        } else {
+          img1.innerText = "🗿";
+        }
+      }
+
+      if (c2) {
+        document.getElementById("poll-name-2").innerText = c2.name;
+        const img2 = document.getElementById("poll-avatar-2");
+        if (c2.img) {
+          img2.innerHTML = '<img src="' + c2.img + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+        } else {
+          img2.innerText = "🗿";
+        }
+      }
+
+      updatePollVotesCount();
+      updatePollUI();
+    }
+
+    function selectPollOption(candidateId) {
+      const weekKey = getWeekIdentifier();
+      const hasVoted = localStorage.getItem("poll_voted_" + weekKey) === "1";
+      if (hasVoted) return;
+
+      selectedPollCandidateId = candidateId;
+      updatePollUI();
+    }
+
+    function updatePollVotesCount() {
+      const v1 = currentVotesCache[pollConfig.candidate1Id] || 0;
+      const v2 = currentVotesCache[pollConfig.candidate2Id] || 0;
+      const total = v1 + v2;
+      const weekKey = getWeekIdentifier();
+      const hasVoted = localStorage.getItem("poll_voted_" + weekKey) === "1";
+
+      const subElem = document.getElementById("txt-poll-sub");
+      if (hasVoted && !isPollRevealed()) {
+        subElem.innerText = total + i18n[currentLang].pollVotesSub + " • " + i18n[currentLang].pollHiddenNotice;
+      } else {
+        subElem.innerText = total + i18n[currentLang].pollVotesSub;
+      }
+    }
+
+    function updatePollUI() {
+      const weekKey = getWeekIdentifier();
+      const votedCandidate = localStorage.getItem("poll_voted_candidate_" + weekKey);
+      const hasVoted = !!votedCandidate || localStorage.getItem("poll_voted_" + weekKey) === "1";
+
+      const opt1 = document.getElementById("poll-opt-1");
+      const opt2 = document.getElementById("poll-opt-2");
+      const btn = document.getElementById("btnPollVote");
+
+      const bar1 = document.getElementById("poll-bar-1");
+      const bar2 = document.getElementById("poll-bar-2");
+      const res1 = document.getElementById("poll-result-1");
+      const res2 = document.getElementById("poll-result-2");
+
+      const v1 = currentVotesCache[pollConfig.candidate1Id] || 0;
+      const v2 = currentVotesCache[pollConfig.candidate2Id] || 0;
+      const total = v1 + v2;
+
+      let pct1 = 0;
+      let pct2 = 0;
+      if (total > 0) {
+        pct1 = Math.round((v1 / total) * 100);
+        pct2 = 100 - pct1;
+      }
+
+      const revealed = isPollRevealed();
+
+      opt1.classList.remove("selected", "voted", "disabled-option");
+      opt2.classList.remove("selected", "voted", "disabled-option");
+
+      if (hasVoted) {
+        if (revealed) {
+          res1.style.display = "flex";
+          res2.style.display = "flex";
+
+          document.getElementById("poll-pct-1").innerText = pct1 + "%";
+          document.getElementById("poll-cnt-1").innerText = "(" + v1 + ")";
+          document.getElementById("poll-pct-2").innerText = pct2 + "%";
+          document.getElementById("poll-cnt-2").innerText = "(" + v2 + ")";
+
+          bar1.style.width = pct1 + "%";
+          bar2.style.width = pct2 + "%";
+        } else {
+          res1.style.display = "none";
+          res2.style.display = "none";
+          bar1.style.width = "0%";
+          bar2.style.width = "0%";
+        }
+
+        if (votedCandidate === pollConfig.candidate1Id) {
+          opt1.classList.add("voted");
+          opt2.classList.add("disabled-option");
+        } else if (votedCandidate === pollConfig.candidate2Id) {
+          opt2.classList.add("voted");
+          opt1.classList.add("disabled-option");
+        } else {
+          opt1.classList.add("disabled-option");
+          opt2.classList.add("disabled-option");
+        }
+
+        btn.disabled = true;
+        btn.classList.add("voted");
+        document.getElementById("txt-poll-btn").innerText = i18n[currentLang].pollBtnVoted;
+      } else {
+        res1.style.display = "none";
+        res2.style.display = "none";
+        bar1.style.width = "0%";
+        bar2.style.width = "0%";
+
+        if (selectedPollCandidateId === pollConfig.candidate1Id) {
+          opt1.classList.add("selected");
+        } else if (selectedPollCandidateId === pollConfig.candidate2Id) {
+          opt2.classList.add("selected");
+        }
+        btn.disabled = !selectedPollCandidateId;
+        btn.classList.remove("voted");
+        document.getElementById("txt-poll-btn").innerText = i18n[currentLang].pollBtnVote;
+      }
+    }
+
+    function castPollVote() {
+      if (!selectedPollCandidateId) return;
+
+      const weekKey = getWeekIdentifier();
+      const hasVoted = localStorage.getItem("poll_voted_" + weekKey) === "1";
+
+      if (!hasVoted) {
+        localStorage.setItem("poll_voted_" + weekKey, "1");
+        localStorage.setItem("poll_voted_candidate_" + weekKey, selectedPollCandidateId);
+        
+        if (db) {
+          db.ref('votes/' + selectedPollCandidateId).transaction(function(currentVotes) {
+            return (currentVotes || 0) + 1;
+          });
+        }
+
+        updatePollVotesCount();
+        updatePollUI();
+      }
+    }
+
+    function applyPublishedOrder(orderArray) {
+      if (!orderArray || !Array.isArray(orderArray)) return;
+
+      chadsData.sort(function(a, b) {
+        let idxA = orderArray.indexOf(a.id);
+        let idxB = orderArray.indexOf(b.id);
+        if (idxA === -1) idxA = 999;
+        if (idxB === -1) idxB = 999;
+        return idxA - idxB;
+      });
+
+      chadsData.forEach(function(chad, index) {
+        chad.rank = index + 1;
+        chad.aura = AURA_VALUES[index] || (80 - index).toFixed(1);
+      });
+
+      renderRankings();
+      updatePollUI();
+    }
+
+    function triggerWeeklyReset() {
+      const currentWeekId = getWeekIdentifier();
+
+      // Tutaj odblokowujemy kandydatów z ankiety oraz miejsca 11-15
+      const newlyUnlocked = [
+        pollConfig.candidate1Id, 
+        pollConfig.candidate2Id,
+        "chad_16", 
+        "chad_17", 
+        "chad_18", 
+        "chad_19", 
+        "chad_20"
+      ];
+
+      chadsData.forEach(function(chad) {
+        if (newlyUnlocked.includes(chad.id)) {
+          chad.locked = false;
+        }
+      });
+
+      chadsData.sort(function(a, b) {
+        const vA = currentVotesCache[a.id] || 0;
+        const vB = currentVotesCache[b.id] || 0;
+        return vB - vA;
+      });
+
+      const newOrder = chadsData.map(function(c) { return c.id; });
+      const resetVotes = {};
+      chadsData.forEach(function(c) {
+        resetVotes[c.id] = 0;
+        c.votes = 0;
+      });
+
+      applyPublishedOrder(newOrder);
+
+      if (db) {
+        db.ref('unlocked_ids').once('value', function(snapshot) {
+          const currentUnlocked = snapshot.val() || [];
+          const updatedUnlocked = Array.from(new Set([...currentUnlocked, ...newlyUnlocked]));
+
+          db.ref().update({
+            'published_order': newOrder,
+            'votes': resetVotes,
+            'last_reset_week': currentWeekId,
+            'unlocked_ids': updatedUnlocked
+          });
+        });
+      }
+    }
+
+    function updateCountdown() {
+      const timerElem = document.getElementById("timer-text");
+      if (!timerElem) return;
+
+      const now = new Date();
+      const nextUpdate = new Date();
+      
+      const daysUntilSunday = (7 - now.getDay()) % 7;
+      nextUpdate.setDate(now.getDate() + daysUntilSunday);
+      nextUpdate.setHours(23, 59, 59, 0);
+
+      const diff = nextUpdate - now;
+
+      if (diff <= 1000) {
+        const currentWeekId = getWeekIdentifier();
+        if (serverLastResetWeek !== currentWeekId) {
+          serverLastResetWeek = currentWeekId;
+          triggerWeeklyReset();
+        }
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      const timeStr = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+      timerElem.innerText = i18n[currentLang].timerPrefix + timeStr;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.getElementById("flag-pl").classList.toggle("active", lang === "pl");
+      document.getElementById("flag-en").classList.toggle("active", lang === "en");
+
+      document.getElementById("txt-hero").innerText = i18n[lang].hero;
+      document.getElementById("txt-verified").innerText = i18n[lang].verified;
+      document.getElementById("st-rank").innerText = i18n[lang].stRank;
+      document.getElementById("st-votes").innerText = i18n[lang].stVotes;
+      document.getElementById("txt-poll-title").innerText = i18n[lang].pollTitle;
+      document.getElementById("txt-hof-title").innerText = i18n[lang].hofTitle;
+      document.getElementById("txt-hof-sub").innerText = i18n[lang].hofSub;
+      document.getElementById("txt-poll-badge").innerText = i18n[lang].pollBadge;
+      document.getElementById("txt-tab-rankings").innerText = i18n[lang].tabRankings;
+           
+      setupPollUI();
+      renderRankings();
+      renderHallOfFame();
+
+      if (activeChadId !== null) {
+        const chad = chadsData.find(function(c) { return c.id === activeChadId; });
+        if (chad) {
+          updateModalText(chad);
+          updateVoteButtonState(chad.id);
+        }
+      }
+      updateCountdown();
+    }
+
+    function openModal(chad) {
+      activeChadId = chad.id;
+      const isLocked = chad.locked;
+      const avatarContainer = document.getElementById("modalAvatarContainer");
+
+      if (!isLocked && chad.img) {
+        avatarContainer.innerHTML = '<img src="' + chad.img + '" class="modal-avatar" alt="Chad">';
+      } else {
+        avatarContainer.innerHTML = '<div class="modal-avatar">❓</div>';
+      }
+
+      document.getElementById("modalStatRank").innerText = "#" + chad.rank;
+      document.getElementById("modalStatAura").innerText = isLocked ? "???" : chad.aura;
+      document.getElementById("modalStatVotes").innerText = chad.votes;
+
+      updateModalText(chad);
+      updateVoteButtonState(chad.id);
+
+      document.getElementById("profileModal").style.display = "flex";
+    }
+
+    function updateModalText(chad) {
+      const isLocked = chad.locked;
+      document.getElementById("modalName").innerText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
+      
+      const titleText = isLocked 
+        ? i18n[currentLang].unrevealedTitle 
+        : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
+
+      document.getElementById("modalTitle").innerText = titleText;
+      
+      const desc = isLocked 
+        ? i18n[currentLang].unrevealedDesc 
+        : (currentLang === "pl" ? chad.descPl : chad.descEn);
+        
+      document.getElementById("modalDesc").innerText = desc || "";
+    }
+
+    function getStoredVoteKey(id) {
+      return "chad_vote_" + getWeekIdentifier() + "_" + id;
+    }
+
+    function getStoredVotes(id) {
+      return parseInt(localStorage.getItem(getStoredVoteKey(id)) || "0", 10);
+    }
+
+    function updateVoteButtonState(id) {
+      const btn = document.getElementById("btnVote");
+      const chad = chadsData.find(function(c) { return c.id === id; });
+
+      if (!chad || chad.locked) {
+        btn.style.display = "none";
+        return;
+      }
+
+      btn.style.display = "inline-flex";
+      const hasVoted = getStoredVotes(id) > 0;
+      
+      if (hasVoted) {
+        btn.classList.add("voted");
+        document.getElementById("txt-vote").innerText = i18n[currentLang].btnVoted;
+      } else {
+        btn.classList.remove("voted");
+        document.getElementById("txt-vote").innerText = i18n[currentLang].btnVote;
+      }
+    }
+
+    function castVote() {
+      if (!activeChadId) return;
+      const chad = chadsData.find(function(c) { return c.id === activeChadId; });
+      
+      if (!chad || chad.locked) return;
+
+      const hasVoted = getStoredVotes(activeChadId) > 0;
+      
+      if (!hasVoted) {
+        localStorage.setItem(getStoredVoteKey(activeChadId), "1");
+        
+        if (db) {
+          db.ref('votes/' + activeChadId).transaction(function(currentVotes) {
+            return (currentVotes || 0) + 1;
+          });
+        }
+
+        updateVoteButtonState(activeChadId);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById("profileModal").style.display = "none";
+      activeChadId = null;
+    }
+
+    setupPollUI();
+    renderRankings();
+    renderHallOfFame();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    try {
+      if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+
+        db.ref('unlocked_ids').on('value', function(snapshot) {
+          const unlockedIds = snapshot.val() || [];
+          chadsData.forEach(function(chad) {
+            if (unlockedIds.includes(chad.id)) {
+              chad.locked = false;
+            }
+          });
+          renderRankings();
+          updatePollUI();
+        });
+
+        db.ref('votes').on('value', function(snapshot) {
+          currentVotesCache = snapshot.val() || {};
+          
+          chadsData.forEach(function(chad) {
+            chad.votes = currentVotesCache[chad.id] || 0;
+          });
+
+          updatePollVotesCount();
+          updatePollUI();
+
+          if (activeChadId !== null) {
+            const activeChad = chadsData.find(function(c) { return c.id === activeChadId; });
+            if (activeChad) {
+              document.getElementById("modalStatVotes").innerText = activeChad.votes;
+            }
+          }
+        });
+
+        db.ref('last_reset_week').on('value', function(snapshot) {
+          serverLastResetWeek = snapshot.val();
+          const currentWeekId = getWeekIdentifier();
+
+          if (!serverLastResetWeek) {
+            db.ref('last_reset_week').set(currentWeekId);
+            serverLastResetWeek = currentWeekId;
+          } else if (serverLastResetWeek !== currentWeekId) {
+            triggerWeeklyReset();
+          }
+        });
+
+        db.ref('published_order').on('value', function(snapshot) {
+          const publishedOrder = snapshot.val();
+          if (publishedOrder && Array.isArray(publishedOrder)) {
+            applyPublishedOrder(publishedOrder);
+          } else {
+            const defaultOrder = chadsData.map(function(c) { return c.id; });
+            db.ref('published_order').set(defaultOrder);
+          }
+        });
+      }
+    } catch (e) {
+      console.log("Firebase status: offline/blocked");
+    }
+  </script>
+</body>
+</html>
