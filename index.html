@@ -248,7 +248,7 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 12px;
       padding: 10px 14px;
-      cursor: pointer;
+      cursor: default;
       transition: all 0.2s ease;
     }
 
@@ -259,7 +259,7 @@
       left: 0;
       bottom: 0;
       width: 0%;
-      background: linear-gradient(90deg, rgba(168, 85, 247, 0.35) 0%, rgba(168, 85, 247, 0.2) 100%);
+      background: linear-gradient(90deg, rgba(168, 85, 247, 0.45) 0%, rgba(168, 85, 247, 0.25) 100%);
       transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       border-radius: 11px;
       z-index: 1;
@@ -277,7 +277,7 @@
     .poll-result-info {
       position: relative;
       z-index: 2;
-      display: none;
+      display: flex;
       align-items: center;
       gap: 6px;
       font-size: 0.85rem;
@@ -293,44 +293,6 @@
       color: var(--subtext);
       font-size: 0.75rem;
       font-weight: 500;
-    }
-
-    .poll-option:hover, .poll-option:active {
-      background: rgba(168, 85, 247, 0.1);
-      border-color: rgba(168, 85, 247, 0.4);
-    }
-
-    .poll-option.selected {
-      border-color: var(--purple-main);
-      background: rgba(168, 85, 247, 0.15);
-    }
-
-    .poll-radio {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid var(--subtext);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.2s ease;
-    }
-
-    .poll-option.selected .poll-radio {
-      border-color: var(--purple-light);
-    }
-
-    .poll-radio-inner {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--purple-light);
-      display: none;
-    }
-
-    .poll-option.selected .poll-radio-inner {
-      display: block;
     }
 
     .poll-avatar {
@@ -349,67 +311,19 @@
       font-weight: 700;
       font-size: 0.9rem;
       color: #ffffff;
-      transition: color 0.2s ease;
-    }
-
-    /* Wygląd opcji po oddaniu głosu */
-    .poll-option.voted {
-      border: 1.5px solid var(--purple-light) !important;
-      background: rgba(168, 85, 247, 0.12) !important;
-      box-shadow: 0 0 14px rgba(168, 85, 247, 0.2);
-      cursor: default !important;
-    }
-
-    .poll-option.voted .poll-name {
-      color: var(--purple-light);
-      font-weight: 800;
-    }
-
-    .poll-option.voted .poll-radio {
-      border-color: var(--purple-light) !important;
-      background-color: var(--purple-main) !important;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .poll-option.voted .poll-radio::after {
-      content: "✓";
-      color: #ffffff;
-      font-weight: 900;
-      font-size: 11px;
-    }
-
-    .poll-option.voted .poll-radio-inner {
-      display: none;
-    }
-
-    .poll-option.disabled-option {
-      opacity: 0.6;
-      cursor: default !important;
-      pointer-events: none;
     }
 
     .poll-vote-btn {
       width: 100%;
       padding: 12px;
       border-radius: 12px;
-      background: var(--purple-gradient);
-      border: none;
-      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: var(--subtext) !important;
       font-weight: 800;
       font-size: 0.9rem;
-      cursor: pointer;
-      margin-top: 4px;
-      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
-      transition: all 0.2s ease;
-    }
-
-    .poll-vote-btn:disabled, .poll-vote-btn.voted {
-      background: rgba(255, 255, 255, 0.08) !important;
-      color: var(--subtext) !important;
       cursor: not-allowed !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      margin-top: 4px;
       box-shadow: none !important;
     }
 
@@ -529,12 +443,6 @@
       background: rgba(168, 85, 247, 0.15);
       color: var(--purple-light);
       border: 1px solid rgba(168, 85, 247, 0.3);
-    }
-
-    .aura-pill.locked {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--subtext);
-      border: none;
     }
 
     .arrow {
@@ -776,20 +684,19 @@
         <div class="badge-verified" id="txt-verified">🎗️ Zweryfikowano przez Polish Chad Association</div>
       </section>
 
-      <!-- Bitwa 1v1 / Community Poll -->
+      <!-- Bitwa 1v1 / Community Poll (Ankieta Zakończona) -->
       <section class="poll-card">
         <div class="poll-badge">
           <span>📊</span>
-          <span id="txt-poll-badge">ANKIETA SPOŁECZNA</span>
+          <span id="txt-poll-badge">ANKIETA SPOŁECZNA (ZAKOŃCZONA)</span>
         </div>
         <h2 class="poll-title" id="txt-poll-title">Kto powinien zająć miejsce #1?</h2>
         <div class="poll-subtitle" id="txt-poll-sub">0 oddanych głosów</div>
 
         <div class="poll-options">
-          <div class="poll-option" id="poll-opt-1" onclick="selectPollOption('chad_1')">
+          <div class="poll-option" id="poll-opt-1">
             <div class="poll-bar" id="poll-bar-1"></div>
             <div class="poll-left-content">
-              <div class="poll-radio"><div class="poll-radio-inner"></div></div>
               <div id="poll-avatar-1" class="poll-avatar">🗿</div>
               <span class="poll-name" id="poll-name-1">Luka</span>
             </div>
@@ -799,10 +706,9 @@
             </div>
           </div>
 
-          <div class="poll-option" id="poll-opt-2" onclick="selectPollOption('chad_2')">
+          <div class="poll-option" id="poll-opt-2">
             <div class="poll-bar" id="poll-bar-2"></div>
             <div class="poll-left-content">
-              <div class="poll-radio"><div class="poll-radio-inner"></div></div>
               <div id="poll-avatar-2" class="poll-avatar">🗿</div>
               <span class="poll-name" id="poll-name-2">Ten od Midasa</span>
             </div>
@@ -813,8 +719,8 @@
           </div>
         </div>
 
-        <button class="poll-vote-btn" id="btnPollVote" onclick="castPollVote()">
-          <span id="txt-poll-btn">Zagłosuj</span>
+        <button class="poll-vote-btn" id="btnPollVote" disabled>
+          <span id="txt-poll-btn">Ankieta zakończona</span>
         </button>
       </section>
 
@@ -864,7 +770,7 @@
 
   <script>
     const firebaseConfig = {
-      apiKey: "AlzaSyCJDcay4pyauLgGQLloTrf1kp2GjXoQmTA",
+      apiKey: "AIzaSyCJDcay4pyauLgGQLloTrf1kp2GjXoQmTA",
       authDomain: "https://polish-chad-rankings.firebaseapp.com",
       databaseURL: "https://polish-chad-rankings-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "polish-chad-rankings",
@@ -876,12 +782,10 @@
     const AURA_VALUES = [
       "99.9", "98.4", "96.5", "94.0", "92.1", 
       "90.5", "88.2", "86.0", "84.7", "82.0", 
-      "80.0", "78.2", "76.5", "74.1", "72.0", 
-      "69.5", "67.2", "65.0", "62.4", "60.0"
+      "80.0", "78.2", "76.5", "74.1", "72.0"
     ];
 
     const pollConfig = {
-      targetRank: 1,
       candidate1Id: "chad_1",
       candidate2Id: "chad_2"
     };
@@ -939,6 +843,7 @@
       { id: "chad_14", rank: 14, locked: false, name: "Michael Ossowski", titlePl: "Twarz High Fashion", titleEn: "The Face of High Fashion", img: "MO.jpg", aura: "74.1", votes: 0, descPl: "Michael Ossowski to profesjonalny model, który wnosi wybiegowy poziom high fashion prosto do czołówki rankingu. Bezustannie zadowala widzów hipnotyzującym spojrzeniem typu hunter eyes, idealną fryzurą oraz wyrazistym efektem hollow cheeks. Posągowa struktura kości twarzy i naturalna elegancja czynią z niego żywy dowód na to, jak wygląda prawdziwy poziom pro-modelingu.", descEn: "Michael Ossowski is a professional model who brings high-fashion runway standards to the top of the rankings. He consistently captivates audiences with his hypnotic hunter eyes, impeccable hairstyle, and striking hollow-cheeked look. His statuesque bone structure and natural elegance serve as living proof of what true professional-level modeling looks like." },
       { id: "chad_15", rank: 15, locked: false, name: "Polubiński", titlePl: "Mistrz Mrocznej Estetyki", titleEn: "Master of Dark Aesthetics", img: "POL.jpg", aura: "72.0", votes: 0, descPl: "Polubiński to postać, która przyciąga uwagę swoim tajemniczym, mrocznym klimatem i potężną fizjonomią. Bezustannie zadowala widzów ostrą linią żuchwy, głębokim spojrzeniem typu hunter eyes oraz wyrazistym profilem. Nawet w chłodnym, stonowanym oświetleniu jego potężny kościec twarzy tworzy absolutnie bezkompromisowy, drapieżny wygląd.", descEn: "Polubiński is a figure who commands attention with his mysterious, dark aura and powerful facial structure. He consistently captivates viewers with a sharp jawline, deep-set hunter eyes, and a striking profile. Even in cool, subdued lighting, his robust bone structure creates an utterly uncompromising, predatory look." },
     ];
+    
 
     const hallOfFameData = [
       {
@@ -972,47 +877,37 @@
 
     const i18n = {
       pl: {
-        timerPrefix: "⏱️ Aktualizacja za: ",
+        timerPrefix: "⏱️ Aktualizacja i reset za: ",
         hero: "Cotygodniowo aktualizowany ranking najbardziej wpływowych chadów w polskiej społeczności.",
         verified: "🎗️ Zweryfikowano przez Polish Chad Association",
-        unrevealedName: "DO UJAWNIENIA",
-        unrevealedTitle: "tajemniczy chad",
-        unrevealedDesc: "Opis profilu pojawi się po oficjalnym ujawnieniu.",
         stRank: "Ranga",
         stVotes: "Głosy",
         btnVote: "🔥 Daj Głos",
         btnVoted: "✅ Zagłosowano",
-        pollTitle: "Kto powinien zająć miejsce #" + pollConfig.targetRank + "?",
-        pollVotesSub: " oddanych głosów",
-        pollHiddenNotice: "🔒 Wyniki i procenty pojawią się po aktualizacji rankingu",
-        pollBtnVote: "Zagłosuj",
-        pollBtnVoted: "✅ Oddano głos w ankiecie",
+        pollTitle: "Kto powinien zająć miejsce #1?",
+        pollVotesSub: " oddanych głosów w ankiecie",
+        pollBtnEnded: "Ankieta zakończona",
         hofTitle: "👑 Sala Sław",
         hofSub: "Legendy wycofane z aktywnego rankingu.",
         legendBadge: "Legenda",
-        pollBadge: "ANKIETA SPOŁECZNA",
+        pollBadge: "ANKIETA SPOŁECZNA (ZAKOŃCZONA)",
         tabRankings: "📋 Rankingi"
       },
       en: {
-        timerPrefix: "⏱️ Update in: ",
+        timerPrefix: "⏱️ Reset & Update in: ",
         hero: "Weekly-updated rankings of the most influential chads in the Polish community.",
         verified: "🎗️ Verified by Polish Chad Association",
-        unrevealedName: "TO BE REVEALED",
-        unrevealedTitle: "mysterious chad",
-        unrevealedDesc: "Profile description will appear after the official reveal.",
         stRank: "Rank",
         stVotes: "Votes",
         btnVote: "🔥 Upvote",
         btnVoted: "✅ Voted",
-        pollTitle: "Who should be #" + pollConfig.targetRank + " Polish Ranked Chad?",
-        pollVotesSub: " votes cast",
-        pollHiddenNotice: "🔒 Results & percentages will appear after ranking update",
-        pollBtnVote: "Vote",
-        pollBtnVoted: "✅ You have already voted on this poll",
+        pollTitle: "Who should be #1 Polish Ranked Chad?",
+        pollVotesSub: " votes cast in poll",
+        pollBtnEnded: "Poll Closed",
         hofTitle: "👑 Hall of Fame",
         hofSub: "Legends who have been retired from the active rankings.",
         legendBadge: "Legend",
-        pollBadge: "COMMUNITY POLL",
+        pollBadge: "COMMUNITY POLL (CLOSED)",
         tabRankings: "📋 Rankings"
       }
     };
@@ -1022,7 +917,6 @@
     let db = null;
     let serverLastResetWeek = null;
     let currentVotesCache = {};
-    let selectedPollCandidateId = null;
 
     function getWeekIdentifier() {
       const now = new Date();
@@ -1035,12 +929,6 @@
       const m = String(nextSunday.getMonth() + 1).padStart(2, '0');
       const d = String(nextSunday.getDate()).padStart(2, '0');
       return "WEEK_" + y + "_" + m + "_" + d;
-    }
-
-    function isPollRevealed() {
-      const c1 = chadsData.find(c => c.id === pollConfig.candidate1Id);
-      const c2 = chadsData.find(c => c.id === pollConfig.candidate2Id);
-      return !!(c1 && c2 && !c1.locked && !c2.locked);
     }
 
     function renderRankings() {
@@ -1058,30 +946,22 @@
         else if (chad.rank === 2) rankClass += " rank-2";
         else if (chad.rank === 3) rankClass += " rank-3";
 
-        const isLocked = chad.locked;
-        const nameText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
-        const subText = isLocked 
-          ? i18n[currentLang].unrevealedTitle 
-          : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
-
-        const avatarHTML = (!isLocked && chad.img) 
+        const subText = currentLang === "pl" ? chad.titlePl : chad.titleEn;
+        const avatarHTML = chad.img 
           ? '<img src="' + chad.img + '" class="avatar" alt="Avatar">'
-          : '<div class="avatar">❓</div>';
-
-        const auraText = isLocked ? "🔒" : chad.aura;
-        const auraClass = isLocked ? "aura-pill locked" : "aura-pill";
+          : '<div class="avatar">🗿</div>';
 
         card.innerHTML = 
           '<div class="card-left">' +
-            '<div class="' + rankClass + '">' + chad.rank + '</div>' +
+            '<div class="' + rankClass + '">#' + chad.rank + '</div>' +
             avatarHTML +
             '<div class="info">' +
-              '<span class="name">' + nameText + '</span>' +
+              '<span class="name">' + chad.name + '</span>' +
               '<span class="subtext">' + subText + '</span>' +
             '</div>' +
           '</div>' +
           '<div class="card-right">' +
-            '<span class="' + auraClass + '">' + auraText + '</span>' +
+            '<span class="aura-pill">' + chad.aura + '</span>' +
             '<span class="arrow">&rsaquo;</span>' +
           '</div>';
 
@@ -1125,8 +1005,6 @@
         const img1 = document.getElementById("poll-avatar-1");
         if (c1.img) {
           img1.innerHTML = '<img src="' + c1.img + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
-        } else {
-          img1.innerText = "🗿";
         }
       }
 
@@ -1135,52 +1013,16 @@
         const img2 = document.getElementById("poll-avatar-2");
         if (c2.img) {
           img2.innerHTML = '<img src="' + c2.img + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
-        } else {
-          img2.innerText = "🗿";
         }
       }
 
-      updatePollVotesCount();
       updatePollUI();
-    }
-
-    function selectPollOption(candidateId) {
-      const weekKey = getWeekIdentifier();
-      const hasVoted = localStorage.getItem("poll_voted_" + weekKey) === "1";
-      if (hasVoted) return;
-
-      selectedPollCandidateId = candidateId;
-      updatePollUI();
-    }
-
-    function updatePollVotesCount() {
-      const v1 = currentVotesCache[pollConfig.candidate1Id] || 0;
-      const v2 = currentVotesCache[pollConfig.candidate2Id] || 0;
-      const total = v1 + v2;
-      const weekKey = getWeekIdentifier();
-      const hasVoted = localStorage.getItem("poll_voted_" + weekKey) === "1";
-
-      const subElem = document.getElementById("txt-poll-sub");
-      if (hasVoted && !isPollRevealed()) {
-        subElem.innerText = total + i18n[currentLang].pollVotesSub + " • " + i18n[currentLang].pollHiddenNotice;
-      } else {
-        subElem.innerText = total + i18n[currentLang].pollVotesSub;
-      }
     }
 
     function updatePollUI() {
-      const weekKey = getWeekIdentifier();
-      const votedCandidate = localStorage.getItem("poll_voted_candidate_" + weekKey);
-      const hasVoted = !!votedCandidate || localStorage.getItem("poll_voted_" + weekKey) === "1";
-
-      const opt1 = document.getElementById("poll-opt-1");
-      const opt2 = document.getElementById("poll-opt-2");
-      const btn = document.getElementById("btnPollVote");
-
       const bar1 = document.getElementById("poll-bar-1");
       const bar2 = document.getElementById("poll-bar-2");
-      const res1 = document.getElementById("poll-result-1");
-      const res2 = document.getElementById("poll-result-2");
+      const btn = document.getElementById("btnPollVote");
 
       const v1 = currentVotesCache[pollConfig.candidate1Id] || 0;
       const v2 = currentVotesCache[pollConfig.candidate2Id] || 0;
@@ -1193,80 +1035,17 @@
         pct2 = 100 - pct1;
       }
 
-      const revealed = isPollRevealed();
+      document.getElementById("poll-pct-1").innerText = pct1 + "%";
+      document.getElementById("poll-cnt-1").innerText = "(" + v1 + ")";
+      document.getElementById("poll-pct-2").innerText = pct2 + "%";
+      document.getElementById("poll-cnt-2").innerText = "(" + v2 + ")";
 
-      opt1.classList.remove("selected", "voted", "disabled-option");
-      opt2.classList.remove("selected", "voted", "disabled-option");
+      bar1.style.width = pct1 + "%";
+      bar2.style.width = pct2 + "%";
 
-      if (hasVoted) {
-        if (revealed) {
-          res1.style.display = "flex";
-          res2.style.display = "flex";
-
-          document.getElementById("poll-pct-1").innerText = pct1 + "%";
-          document.getElementById("poll-cnt-1").innerText = "(" + v1 + ")";
-          document.getElementById("poll-pct-2").innerText = pct2 + "%";
-          document.getElementById("poll-cnt-2").innerText = "(" + v2 + ")";
-
-          bar1.style.width = pct1 + "%";
-          bar2.style.width = pct2 + "%";
-        } else {
-          res1.style.display = "none";
-          res2.style.display = "none";
-          bar1.style.width = "0%";
-          bar2.style.width = "0%";
-        }
-
-        if (votedCandidate === pollConfig.candidate1Id) {
-          opt1.classList.add("voted");
-          opt2.classList.add("disabled-option");
-        } else if (votedCandidate === pollConfig.candidate2Id) {
-          opt2.classList.add("voted");
-          opt1.classList.add("disabled-option");
-        } else {
-          opt1.classList.add("disabled-option");
-          opt2.classList.add("disabled-option");
-        }
-
-        btn.disabled = true;
-        btn.classList.add("voted");
-        document.getElementById("txt-poll-btn").innerText = i18n[currentLang].pollBtnVoted;
-      } else {
-        res1.style.display = "none";
-        res2.style.display = "none";
-        bar1.style.width = "0%";
-        bar2.style.width = "0%";
-
-        if (selectedPollCandidateId === pollConfig.candidate1Id) {
-          opt1.classList.add("selected");
-        } else if (selectedPollCandidateId === pollConfig.candidate2Id) {
-          opt2.classList.add("selected");
-        }
-        btn.disabled = !selectedPollCandidateId;
-        btn.classList.remove("voted");
-        document.getElementById("txt-poll-btn").innerText = i18n[currentLang].pollBtnVote;
-      }
-    }
-
-    function castPollVote() {
-      if (!selectedPollCandidateId) return;
-
-      const weekKey = getWeekIdentifier();
-      const hasVoted = localStorage.getItem("poll_voted_" + weekKey) === "1";
-
-      if (!hasVoted) {
-        localStorage.setItem("poll_voted_" + weekKey, "1");
-        localStorage.setItem("poll_voted_candidate_" + weekKey, selectedPollCandidateId);
-        
-        if (db) {
-          db.ref('votes/' + selectedPollCandidateId).transaction(function(currentVotes) {
-            return (currentVotes || 0) + 1;
-          });
-        }
-
-        updatePollVotesCount();
-        updatePollUI();
-      }
+      document.getElementById("txt-poll-sub").innerText = total + i18n[currentLang].pollVotesSub;
+      document.getElementById("txt-poll-btn").innerText = i18n[currentLang].pollBtnEnded;
+      btn.disabled = true;
     }
 
     function applyPublishedOrder(orderArray) {
@@ -1289,52 +1068,39 @@
       updatePollUI();
     }
 
+    /* Kasowanie danych i przeliczanie rankingu w niedzielę o północy (#1 - #15) */
     function triggerWeeklyReset() {
       const currentWeekId = getWeekIdentifier();
 
-      // Tutaj odblokowujemy kandydatów z ankiety oraz miejsca 11-15
-      const newlyUnlocked = [
-        pollConfig.candidate1Id, 
-        pollConfig.candidate2Id,
-        "chad_16", 
-        "chad_17", 
-        "chad_18", 
-        "chad_19", 
-        "chad_20"
-      ];
-
-      chadsData.forEach(function(chad) {
-        if (newlyUnlocked.includes(chad.id)) {
-          chad.locked = false;
-        }
-      });
-
+      // 1. Sortowanie według liczby głosów (od największej do najmniejszej)
       chadsData.sort(function(a, b) {
         const vA = currentVotesCache[a.id] || 0;
         const vB = currentVotesCache[b.id] || 0;
         return vB - vA;
       });
 
-      const newOrder = chadsData.map(function(c) { return c.id; });
+      // 2. Nadanie nowych pozycji 1-15 i zerowanie głosów lokalnych
+      const newOrder = [];
       const resetVotes = {};
-      chadsData.forEach(function(c) {
-        resetVotes[c.id] = 0;
-        c.votes = 0;
+
+      chadsData.forEach(function(chad, index) {
+        chad.rank = index + 1;
+        chad.aura = AURA_VALUES[index] || (80 - index).toFixed(1);
+        chad.votes = 0;
+        newOrder.push(chad.id);
+        resetVotes[chad.id] = 0;
       });
 
-      applyPublishedOrder(newOrder);
+      currentVotesCache = resetVotes;
+      renderRankings();
+      updatePollUI();
 
+      // 3. Aktualizacja nowej kolejności i wyzerowanie głosów w Firebase
       if (db) {
-        db.ref('unlocked_ids').once('value', function(snapshot) {
-          const currentUnlocked = snapshot.val() || [];
-          const updatedUnlocked = Array.from(new Set([...currentUnlocked, ...newlyUnlocked]));
-
-          db.ref().update({
-            'published_order': newOrder,
-            'votes': resetVotes,
-            'last_reset_week': currentWeekId,
-            'unlocked_ids': updatedUnlocked
-          });
+        db.ref().update({
+          'published_order': newOrder,
+          'votes': resetVotes,
+          'last_reset_week': currentWeekId
         });
       }
     }
@@ -1400,17 +1166,16 @@
 
     function openModal(chad) {
       activeChadId = chad.id;
-      const isLocked = chad.locked;
       const avatarContainer = document.getElementById("modalAvatarContainer");
 
-      if (!isLocked && chad.img) {
+      if (chad.img) {
         avatarContainer.innerHTML = '<img src="' + chad.img + '" class="modal-avatar" alt="Chad">';
       } else {
-        avatarContainer.innerHTML = '<div class="modal-avatar">❓</div>';
+        avatarContainer.innerHTML = '<div class="modal-avatar">🗿</div>';
       }
 
       document.getElementById("modalStatRank").innerText = "#" + chad.rank;
-      document.getElementById("modalStatAura").innerText = isLocked ? "???" : chad.aura;
+      document.getElementById("modalStatAura").innerText = chad.aura;
       document.getElementById("modalStatVotes").innerText = chad.votes;
 
       updateModalText(chad);
@@ -1420,19 +1185,10 @@
     }
 
     function updateModalText(chad) {
-      const isLocked = chad.locked;
-      document.getElementById("modalName").innerText = isLocked ? i18n[currentLang].unrevealedName : chad.name;
-      
-      const titleText = isLocked 
-        ? i18n[currentLang].unrevealedTitle 
-        : (currentLang === "pl" ? chad.titlePl : chad.titleEn);
-
+      document.getElementById("modalName").innerText = chad.name;
+      const titleText = currentLang === "pl" ? chad.titlePl : chad.titleEn;
       document.getElementById("modalTitle").innerText = titleText;
-      
-      const desc = isLocked 
-        ? i18n[currentLang].unrevealedDesc 
-        : (currentLang === "pl" ? chad.descPl : chad.descEn);
-        
+      const desc = currentLang === "pl" ? chad.descPl : chad.descEn;
       document.getElementById("modalDesc").innerText = desc || "";
     }
 
@@ -1448,10 +1204,7 @@
       const btn = document.getElementById("btnVote");
       const chad = chadsData.find(function(c) { return c.id === id; });
 
-      if (!chad || chad.locked) {
-        btn.style.display = "none";
-        return;
-      }
+      if (!chad) return;
 
       btn.style.display = "inline-flex";
       const hasVoted = getStoredVotes(id) > 0;
@@ -1468,8 +1221,7 @@
     function castVote() {
       if (!activeChadId) return;
       const chad = chadsData.find(function(c) { return c.id === activeChadId; });
-      
-      if (!chad || chad.locked) return;
+      if (!chad) return;
 
       const hasVoted = getStoredVotes(activeChadId) > 0;
       
@@ -1480,6 +1232,9 @@
           db.ref('votes/' + activeChadId).transaction(function(currentVotes) {
             return (currentVotes || 0) + 1;
           });
+        } else {
+          chad.votes += 1;
+          document.getElementById("modalStatVotes").innerText = chad.votes;
         }
 
         updateVoteButtonState(activeChadId);
@@ -1497,22 +1252,13 @@
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
+    // Integracja z Firebase Realtime Database
     try {
       if (typeof firebase !== 'undefined') {
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
 
-        db.ref('unlocked_ids').on('value', function(snapshot) {
-          const unlockedIds = snapshot.val() || [];
-          chadsData.forEach(function(chad) {
-            if (unlockedIds.includes(chad.id)) {
-              chad.locked = false;
-            }
-          });
-          renderRankings();
-          updatePollUI();
-        });
-
+        // Subskrypcja liczby głosów
         db.ref('votes').on('value', function(snapshot) {
           currentVotesCache = snapshot.val() || {};
           
@@ -1520,7 +1266,6 @@
             chad.votes = currentVotesCache[chad.id] || 0;
           });
 
-          updatePollVotesCount();
           updatePollUI();
 
           if (activeChadId !== null) {
@@ -1531,6 +1276,7 @@
           }
         });
 
+        // Weryfikacja tygodnia i automatyczny reset
         db.ref('last_reset_week').on('value', function(snapshot) {
           serverLastResetWeek = snapshot.val();
           const currentWeekId = getWeekIdentifier();
@@ -1543,6 +1289,7 @@
           }
         });
 
+        // Synchronizacja opublikowanej kolejności w rankingu
         db.ref('published_order').on('value', function(snapshot) {
           const publishedOrder = snapshot.val();
           if (publishedOrder && Array.isArray(publishedOrder)) {
@@ -1554,7 +1301,7 @@
         });
       }
     } catch (e) {
-      console.log("Firebase status: offline/blocked");
+      console.log("Status Firebase: tryb offline/błąd konfiguracji");
     }
   </script>
 </body>
