@@ -1788,6 +1788,17 @@ function deleteComment(postId, commentId) {
       const thisWeek = getWeekIdentifier();
       const votes = data.votes || {};
       const savedRankings = data.rankings || null;
+      const revealed16to20 = data.revealed16to20 || false; // Odczyt stanu z bazy
+
+  // Jeśli reset się odbył, odblokuj karty w lokalnej tablicy
+  if (revealed16to20) {
+    const idsToReveal = ["chad_16", "chad_17", "chad_18", "chad_19", "chad_20"];
+    chadsData.forEach(chad => {
+      if (idsToReveal.includes(chad.id)) {
+        chad.locked = false;
+      }
+    });
+  }
       
       // 1. Przypisujemy aktualne głosy z bazy do obiektów
       chadsData.forEach(chad => {
@@ -1828,6 +1839,14 @@ function deleteComment(postId, commentId) {
 
     // Funkcja sortująca osoby wg głosów, ustalająca nowe miejsca (1-15) i zerująca głosy
     function performWeeklyReset(newWeekKey) {
+      // Odblokowanie postaci z miejsc 16-20 po zakończeniu odliczania
+  const idsToReveal = ["chad_16", "chad_17", "chad_18", "chad_19", "chad_20"];
+  chadsData.forEach(chad => {
+    if (idsToReveal.includes(chad.id)) {
+      chad.locked = false;
+    }
+  });
+      
       // Sortowanie osób malejąco po liczbie zgromadzonych głosów (najwięcej głosów -> #1)
       chadsData.sort((a, b) => (b.votes || 0) - (a.votes || 0));
 
