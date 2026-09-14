@@ -940,6 +940,7 @@
     let currentVotesCache = {};
     let selectedPollCandidateId = null;
     let postsDataCache = {};
+    let currentResetVersion = 0;
     
     const ADMIN_EMAIL = "kplatek.2020@gmail.com";
     const IMGBB_API_KEY = "b2443cd9b7815f2f3e2909250ec3bce3";
@@ -1804,14 +1805,18 @@ function deleteComment(postId, commentId) {
   const votes = data.votes || {};
   const savedRankings = data.rankings || null;
   const revealed16to20 = data.revealed16to20 || false;
+  
+  // Pobieramy wersję resetu z bazy Firebase
+  currentResetVersion = data.resetVersion || 0;
 
-  // Sprawdzenie zmiany tygodnia przed wczytaniem starych rang
+  // Automatyczny reset tygodniowy
   if (storedWeek && storedWeek !== thisWeek) {
     chadsData.forEach(chad => { chad.votes = votes[chad.id] || 0; });
     performWeeklyReset(thisWeek);
     return;
   }
 
+  // Odblokowywanie pozycji 16-20 jeśli flaga w bazie jest ustawiona na true
   if (revealed16to20) {
     const idsToReveal = ["chad_16", "chad_17", "chad_18", "chad_19", "chad_20"];
     chadsData.forEach(chad => {
@@ -1819,10 +1824,12 @@ function deleteComment(postId, commentId) {
     });
   }
 
+  // Aktualizacja głosów w pamięci lokalnej
   chadsData.forEach(chad => {
     chad.votes = votes[chad.id] || 0;
   });
 
+  // Wczytanie posortowanych rang z Firebase
   if (savedRankings) {
     chadsData.forEach(chad => {
       if (savedRankings[chad.id] !== undefined) {
@@ -1838,38 +1845,49 @@ function deleteComment(postId, commentId) {
   renderRankings();
 });
     
+    
 
     // Funkcja sortująca osoby wg głosów, ustalająca nowe miejsca (1-15) i zerująca głosy
     function performWeeklyReset(newWeekKey) {
   const idsToReveal = ["chad_16", "chad_17", "chad_18", "chad_19", "chad_20"];
   
-  // 1. Odblokowanie lokalne
+  // 1. Odblokowanie pozycji 16-20 na stałe
   chadsData.forEach(chad => {
     if (idsToReveal.includes(chad.id)) {
       chad.locked = false;
     }
   });
 
-  // 2. Sortowanie tylko aktywnych chadów (chad_1 do chad_20)
-  const activeChads = chadsData.filter(c => c.name !== "");
+  // 2. Sortowanie tylko aktywnych chadów na podstawie dotychczas uzbieranych głosów
+  const activeChads = chadsData.filter(c => c.name && c.name.trim() !== "");
   activeChads.sort((a, b) => (b.votes || 0) - (a.votes || 0));
 
+  // 3. Przypisanie nowych rang oraz zerowanie głosów w lokalnym obiekcie
   const newRankings = {};
   activeChads.forEach((chad, index) => {
     chad.rank = index + 1;
     newRankings[chad.id] = chad.rank;
+    chad.votes = 0; // Czyszczenie głosów w pamięci lokalnej
   });
 
-  // 3. Zapis do Firebase z uwzględnieniem ujawnienia kart 16-20
+  // Unikalny znacznik czasowy resetu (odblokuje ponowne głosowanie wszystkim)
+  const newResetVersion = Date.now();
+
+  // 4. Trwały zapis stanu do Firebase
   db.ref().update({
     currentWeek: newWeekKey,
     rankings: newRankings,
     revealed16to20: true,
-    votes: null
+    resetVersion: newResetVersion,
+    votes: null // Usunięcie wszystkich dotychczasowych głosów z Firebase
   }).then(() => {
+    alert(currentLang === "pl" ? "Ranking został pomyślnie zresetowany na stałe!" : "Ranking reset saved permanently!");
     renderRankings();
+  }).catch(err => {
+    alert("Błąd zapisu do Firebase: " + err.message);
   });
     }
+    
 
     function triggerOwnerReset() {
   if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
@@ -1966,7 +1984,7 @@ function deleteComment(postId, commentId) {
     }
 
     function getStoredVoteKey(id) {
-      return "chad_vote_" + getWeekIdentifier() + "_" + id;
+  return "chad_vote_" + getWeekIdentifier() + "_" + currentResetVersion + "_" + id;
     }
 
     function updateVoteButtonState(id) {
