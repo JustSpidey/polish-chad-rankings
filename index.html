@@ -1430,19 +1430,47 @@ const archivedPollVotes = {
     }
       
   
-function castPollVote() {
-  if (!pollConfig.active) return; // Zablokowanie głosowania w 2. tygodniu
+async function castPollVote() {
+  if (!pollConfig.active) return;
   if (!selectedPollCandidateId) return;
+
+  // 1. Wymuś zalogowanie do oddania głosu
+  if (!currentUser) {
+    alert(currentLang === "pl" ? "Musisz być zalogowany, aby zagłosować!" : "You must be logged in to vote!");
+    openAuthModal();
+    return;
+  }
+
   const weekKey = getWeekIdentifier();
-  if (localStorage.getItem("poll_voted_" + weekKey) !== "1") {
+  const uid = currentUser.uid;
+  const userVoteRef = db.ref(`user_votes/${weekKey}/${selectedPollCandidateId}/${uid}`);
+
+  try {
+    // 2. Sprawdź w bazie danych, czy użytkownik już głosował w tym tygodniu
+    const snapshot = await userVoteRef.once('value');
+    if (snapshot.exists()) {
+      alert(currentLang === "pl" ? "Już oddałeś głos w tej ankiecie!" : "You have already voted!");
+      return;
+    }
+
+    // 3. Zapisz głos w uaktualnionej strukturze
+    await userVoteRef.set(true);
+    
+    // 4. Zwiększ ogólny licznik o 1
+    await db.ref('votes/' + selectedPollCandidateId).transaction(function(c) { 
+      return (c || 0) + 1; 
+    });
+
     localStorage.setItem("poll_voted_" + weekKey, "1");
     localStorage.setItem("poll_voted_candidate_" + weekKey, selectedPollCandidateId);
-    
-    db.ref('votes/' + selectedPollCandidateId).transaction(function(c) { return (c || 0) + 1; });
+
     updatePollVotesCount();
     updatePollUI();
+  } catch (err) {
+    alert((currentLang === "pl" ? "Błąd podczas oddawania głosu: " : "Voting error: ") + err.message);
   }
 }
+    
     
     function updateAuthUI() {
   const status = document.getElementById("userAuthStatus");
