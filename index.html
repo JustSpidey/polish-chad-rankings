@@ -1229,12 +1229,15 @@ const archivedPollVotes = {
       document.getElementById("view-community").classList.toggle("hidden", tabName !== 'community');
     }
 
-    function renderRankings() {
+        function renderRankings() {
       const container = document.getElementById("rankings");
       if (!container) return;
       container.innerHTML = "";
 
-      chadsData.forEach(function(chad) {
+      // Kopia i posortowanie po randze (od 1 do N)
+      const sortedChads = [...chadsData].sort((a, b) => a.rank - b.rank);
+
+      sortedChads.forEach(function(chad) {
         const card = document.createElement("div");
         card.className = "card";
         card.onclick = function() { openModal(chad); };
@@ -1835,6 +1838,22 @@ function deleteComment(postId, commentId) {
   db.ref('votes').on('value', function(snapshot) {
     const votes = snapshot.val() || {};
 
+      // Nasłuchiwanie zapisanych pozycji z Firebase (po resecie)
+  db.ref('rankings').on('value', function(snapshot) {
+    const savedRankings = snapshot.val() || {};
+    
+    chadsData.forEach(chad => {
+      if (savedRankings[chad.id] !== undefined) {
+        chad.rank = Number(savedRankings[chad.id]);
+      }
+    });
+
+    renderRankings();
+  }, function(error) {
+    console.error("Błąd odczytu rang z Firebase:", error);
+  });
+    
+
     // Bezpieczne wczytanie głosów do lokalnej tablicy chadsData
     chadsData.forEach(chad => {
       const rawVote = votes[chad.id];
@@ -1877,45 +1896,45 @@ function deleteComment(postId, commentId) {
     
 
     // Funkcja sortująca osoby wg głosów, ustalająca nowe miejsca (1-15) i zerująca głosy
-    function performWeeklyReset(newWeekKey) {
-  const idsToReveal = ["chad_", "chad_", "chad_", "chad_", "chad_"];
-  
-  // 1. Odblokowanie pozycji 16-20 na stałe
-  chadsData.forEach(chad => {
-    if (idsToReveal.includes(chad.id)) {
-      chad.locked = false;
-    }
-  });
+        function performWeeklyReset(newWeekKey) {
+      const idsToReveal = ["chad_16", "chad_17", "chad_18", "chad_19", "chad_20"];
+      
+      // 1. Odblokowanie wybranych pozycji
+      chadsData.forEach(chad => {
+        if (idsToReveal.includes(chad.id)) {
+          chad.locked = false;
+        }
+      });
 
-  // 2. Sortowanie tylko aktywnych chadów na podstawie dotychczas uzbieranych głosów
-  const activeChads = chadsData.filter(c => c.name && c.name.trim() !== "");
-  activeChads.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+      // 2. Sortowanie po dotychczasowych głosach
+      const activeChads = chadsData.filter(c => c.name && c.name.trim() !== "");
+      activeChads.sort((a, b) => (b.votes || 0) - (a.votes || 0));
 
-  // 3. Przypisanie nowych rang oraz zerowanie głosów w lokalnym obiekcie
-  const newRankings = {};
-  activeChads.forEach((chad, index) => {
-    chad.rank = index + 1;
-    newRankings[chad.id] = chad.rank;
-    chad.votes = 0; // Czyszczenie głosów w pamięci lokalnej
-  });
+      // 3. Przypisanie nowych rang (1, 2, 3...) i zerowanie głosów
+      const newRankings = {};
+      activeChads.forEach((chad, index) => {
+        chad.rank = index + 1;
+        newRankings[chad.id] = chad.rank;
+        chad.votes = 0;
+      });
 
-  // Unikalny znacznik czasowy resetu (odblokuje ponowne głosowanie wszystkim)
-  const newResetVersion = Date.now();
+      const newResetVersion = Date.now();
 
-  // 4. Trwały zapis stanu do Firebase
-  db.ref().update({
-    currentWeek: newWeekKey,
-    rankings: newRankings,
-    revealed16to20: true,
-    resetVersion: newResetVersion,
-    votes: null // Usunięcie wszystkich dotychczasowych głosów z Firebase
-  }).then(() => {
-    alert(currentLang === "pl" ? "Ranking został pomyślnie zresetowany na stałe!" : "Ranking reset saved permanently!");
-    renderRankings();
-  }).catch(err => {
-    alert("Błąd zapisu do Firebase: " + err.message);
-  });
-    }
+      // 4. Zapis do Firebase
+      db.ref().update({
+        currentWeek: newWeekKey,
+        rankings: newRankings,
+        revealed16to20: true,
+        resetVersion: newResetVersion,
+        votes: null
+      }).then(() => {
+        alert(currentLang === "pl" ? "Ranking został pomyślnie zresetowany na stałe!" : "Ranking reset saved permanently!");
+        renderRankings();
+      }).catch(err => {
+        alert("Błąd zapisu do Firebase: " + err.message);
+      });
+        }
+        2
     
 
     function triggerOwnerReset() {
