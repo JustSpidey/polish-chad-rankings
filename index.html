@@ -1831,53 +1831,78 @@ function deleteComment(postId, commentId) {
       renderPosts();
     });
 
-        // Główny słuchacz Firebase – obsługa pozycji, głosów i automatycznego resetu cotygodniowego
-    db.ref().on('value', function(snapshot) {
-  const data = snapshot.val() || {};
-  const storedWeek = data.currentWeek;
-  const thisWeek = getWeekIdentifier();
-  const votes = data.votes || {};
-  const savedRankings = data.rankings || null;
-  const revealed16to20 = data.revealed16to20 || false;
-  
-  // Pobieramy wersję resetu z bazy Firebase
-  currentResetVersion = data.resetVersion || 0;
+          // Główny słuchacz Firebase - obsługa pozycji, głosów i automatycznego resetu cotygodniowego
+  db.ref().on('value', function(snapshot) {
+    const data = snapshot.val() || {};
+    const storedWeek = data.currentWeek;
+    const thisWeek = getWeekIdentifier();
+    const votes = data.votes || {};
+    const savedRankings = data.rankings || null;
+    const revealed16to20 = data.revealed16to20 || false;
 
-  // Automatyczny reset tygodniowy
-  if (storedWeek && storedWeek !== thisWeek) {
-    chadsData.forEach(chad => { chad.votes = votes[chad.id] || 0; });
-    performWeeklyReset(thisWeek);
-    return;
-  }
+    // Pobieramy wersję resetu z bazy Firebase
+    currentResetVersion = data.resetVersion || 0;
 
-  // Odblokowywanie pozycji 16-20 jeśli flaga w bazie jest ustawiona na true
-  if (revealed16to20) {
-    const idsToReveal = ["chad_", "chad_", "chad_", "chad_", "chad_"];
+    // Automatyczny reset tygodniowy
+    if (storedWeek && storedWeek !== thisWeek) {
+      chadsData.forEach(chad => { chad.votes = votes[chad.id] || 0; });
+      performWeeklyReset(thisWeek);
+      return;
+    }
+
+    // Odblokowanie pozycji 16-20 jeśli flaga w bazie jest ustawiona na true
+    if (revealed16to20) {
+      const idsToReveal = ["chad_16", "chad_17", "chad_18", "chad_19", "chad_20"];
+      chadsData.forEach(chad => {
+        if (idsToReveal.includes(chad.id)) chad.locked = false;
+      });
+    }
+
+    // Bezpieczna aktualizacja głosów w pamięci lokalnej z obsługą różnych typów danych
     chadsData.forEach(chad => {
-      if (idsToReveal.includes(chad.id)) chad.locked = false;
-    });
-  }
-
-  // Aktualizacja głosów w pamięci lokalnej
-  chadsData.forEach(chad => {
-    chad.votes = votes[chad.id] || 0;
-  });
-
-  // Wczytanie posortowanych rang z Firebase
-  if (savedRankings) {
-    chadsData.forEach(chad => {
-      if (savedRankings[chad.id] !== undefined) {
-        chad.rank = savedRankings[chad.id];
+      const rawVote = votes[chad.id];
+      let voteCount = 0;
+      if (typeof rawVote === 'number') {
+        voteCount = rawVote;
+      } else if (typeof rawVote === 'object' && rawVote !== null) {
+        voteCount = Number(rawVote.votes) || 0;
+      } else if (rawVote !== undefined && rawVote !== null) {
+        voteCount = Number(rawVote) || 0;
       }
+      chad.votes = voteCount;
     });
-    chadsData.sort((a, b) => a.rank - b.rank);
-  }
 
-  currentVotesCache = votes;
-  updatePollVotesCount();
-  updatePollUI();
-  renderRankings();
-});
+    // Wczytanie zapisanych rang z Firebase
+    if (savedRankings) {
+      chadsData.forEach(chad => {
+        if (savedRankings[chad.id] !== undefined) {
+          chad.rank = savedRankings[chad.id];
+        }
+      });
+      chadsData.sort((a, b) => a.rank - b.rank);
+    }
+
+    // Aktualizacja pamięci podręcznej głosów
+    currentVotesCache = {};
+    chadsData.forEach(chad => {
+      currentVotesCache[chad.id] = chad.votes;
+    });
+
+    // Odświeżenie widoku
+    updatePollVotesCount();
+    updatePollUI();
+    renderRankings();
+
+    // Jeśli okno modalne jest otwarte, natychmiast zaktualizuj na nim wynik głosów
+    if (typeof activeChadId !== 'undefined' && activeChadId) {
+      const activeChad = chadsData.find(c => c.id === activeChadId);
+      if (activeChad) {
+        const votesElem = document.getElementById("modalStatVotes");
+        if (votesElem) votesElem.innerText = activeChad.votes;
+      }
+    }
+  });
+    
     
     
 
@@ -2094,49 +2119,59 @@ function applyTimerToButton(lastVoteTime) {
   modalTimerInterval = setInterval(checkState, 1000);
 }
 
-// Oddanie głosu z blokadą na adres IP
-async function castVote() {
-  if (!activeChadId) return;
-  const chad = chadsData.find(c => c.id === activeChadId);
-  if (!chad || chad.locked) return;
+  // Oddawanie głosu z blokadą po adresie IP
+  async function castVote() {
+    if (!activeChadId) return;
+    const chad = chadsData.find(c => c.id === activeChadId);
+    if (!chad || chad.locked) return;
 
-  const btn = document.getElementById("btnVote");
-  btn.disabled = true;
+    const btn = document.getElementById("btnVote");
+    if (btn) btn.disabled = true;
 
-  const ipKey = await getUserIp();
-  
-  if (!ipKey) {
-    alert(currentLang === "pl" ? "Błąd weryfikacji połączenia. Spróbuj ponowne za chwilę." : "IP verification error.");
-    btn.disabled = false;
-    return;
-  }
+    const ipKey = await getUserIp();
 
-  const voteRef = db.ref(`ipVotes/${ipKey}/${activeChadId}`);
-
-  voteRef.once('value').then(snapshot => {
-    const lastVoteTime = snapshot.val() || 0;
-    const now = Date.now();
-
-    if (now - lastVoteTime >= VOTE_COOLDOWN) {
-      // Zapisujemy nowy czas głosu dla tego IP w Firebase
-      voteRef.set(now);
-
-      // Zapis lokalny jako dodatkowe zabezpieczenie
-      localStorage.setItem(getStoredVoteKey(activeChadId), now.toString());
-
-      chad.votes = (chad.votes || 0) + 1;
-      document.getElementById("modalStatVotes").innerText = chad.votes;
-
-      db.ref('votes/' + activeChadId).transaction(function(c) {
-        return (c || 0) + 1;
-      });
-
-      updateVoteButtonState(activeChadId);
-    } else {
-      updateVoteButtonState(activeChadId);
+    if (!ipKey) {
+      alert(currentLang === "pl" ? "Błąd weryfikacji połączenia. Spróbuj ponownie za chwilę." : "IP verification error.");
+      if (btn) btn.disabled = false;
+      return;
     }
-  });
-}
+
+    const voteRef = db.ref('ipVotes/' + ipKey + '/' + activeChadId);
+
+    voteRef.once('value').then(snapshot => {
+      const lastVoteTime = snapshot.val() || 0;
+      const now = Date.now();
+
+      if (now - lastVoteTime >= VOTE_COOLDOWN) {
+        // Zapisujemy nowy czas głosu dla tego IP w Firebase
+        voteRef.set(now);
+
+        // Zapis lokalny jako dodatkowe zabezpieczenie
+        localStorage.setItem(getStoredVoteKey(activeChadId), now.toString());
+
+        // Transakcja zwiększająca licznik w Firebase
+        db.ref('votes/' + activeChadId).transaction(function(c) {
+          return (c || 0) + 1;
+        }, function(error, committed, snapshot) {
+          if (committed && snapshot) {
+            const newCount = snapshot.val();
+            if (typeof newCount === 'number') {
+              chad.votes = newCount;
+              const votesElem = document.getElementById("modalStatVotes");
+              if (votesElem) votesElem.innerText = chad.votes;
+            }
+          }
+          updateVoteButtonState(activeChadId);
+        });
+      } else {
+        updateVoteButtonState(activeChadId);
+      }
+    }).catch(err => {
+      console.error("Błąd podczas głosowania:", err);
+      if (btn) btn.disabled = false;
+    });
+  }
+    
     
     
     function closeModal() {
