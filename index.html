@@ -1834,62 +1834,70 @@ function deleteComment(postId, commentId) {
       renderPosts();
     });
 
-            // Główny bezpieczny słuchacz głosów w Firebase (wklej w miejsce starego db.ref().on)
-  db.ref('votes').on('value', function(snapshot) {
-    const votes = snapshot.val() || {};
+            // Główny bezpieczny słuchacz głosów w Firebase
+  // 1. Niezależne nasłuchiwanie głosów
+    db.ref('votes').on('value', function(snapshot) {
+      const votes = snapshot.val() || {};
 
-      // Nasłuchiwanie zapisanych pozycji z Firebase (po resecie)
-  db.ref('rankings').on('value', function(snapshot) {
-    const savedRankings = snapshot.val() || {};
-    
-    chadsData.forEach(chad => {
-      if (savedRankings[chad.id] !== undefined) {
-        chad.rank = Number(savedRankings[chad.id]);
+      chadsData.forEach(chad => {
+        const rawVote = votes[chad.id];
+        let voteCount = 0;
+        if (typeof rawVote === 'number') {
+          voteCount = rawVote;
+        } else if (typeof rawVote === 'object' && rawVote !== null) {
+          voteCount = Number(rawVote.votes) || 0;
+        } else if (rawVote !== undefined && rawVote !== null) {
+          voteCount = Number(rawVote) || 0;
+        }
+        chad.votes = voteCount;
+      });
+
+      currentVotesCache = {};
+      chadsData.forEach(chad => {
+        currentVotesCache[chad.id] = chad.votes;
+      });
+
+      updatePollVotesCount();
+      updatePollUI();
+
+      if (typeof activeChadId !== 'undefined' && activeChadId) {
+        const activeChad = chadsData.find(c => c.id === activeChadId);
+        if (activeChad) {
+          const votesElem = document.getElementById("modalStatVotes");
+          if (votesElem) votesElem.innerText = activeChad.votes;
+        }
       }
+    }, function(error) {
+      console.error("Błąd odczytu głosów z Firebase:", error);
     });
 
-    renderRankings();
-  }, function(error) {
-    console.error("Błąd odczytu rang z Firebase:", error);
-  });
-    
+    // 2. Niezależne nasłuchiwanie rang (pozycji) z Firebase po resecie
+    db.ref('rankings').on('value', function(snapshot) {
+      const savedRankings = snapshot.val() || {};
+      
+      chadsData.forEach(chad => {
+        if (savedRankings[chad.id] !== undefined) {
+          chad.rank = Number(savedRankings[chad.id]);
+        }
+      });
 
-    // Bezpieczne wczytanie głosów do lokalnej tablicy chadsData
-    chadsData.forEach(chad => {
-      const rawVote = votes[chad.id];
-      let voteCount = 0;
-      if (typeof rawVote === 'number') {
-        voteCount = rawVote;
-      } else if (typeof rawVote === 'object' && rawVote !== null) {
-        voteCount = Number(rawVote.votes) || 0;
-      } else if (rawVote !== undefined && rawVote !== null) {
-        voteCount = Number(rawVote) || 0;
-      }
-      chad.votes = voteCount;
+      renderRankings();
+    }, function(error) {
+      console.error("Błąd odczytu rang z Firebase:", error);
     });
 
-    // Aktualizacja lokalnej pamięci podręcznej (cache)
-    currentVotesCache = {};
-    chadsData.forEach(chad => {
-      currentVotesCache[chad.id] = chad.votes;
-    });
-
-    // Odświeżenie interfejsu i rankingu na stronie
-    updatePollVotesCount();
-    updatePollUI();
-    renderRankings();
-
-    // Jeśli użytkownik ma otwarty profil danego chada, zaktualizuj licznik w oknie na żywo
-    if (typeof activeChadId !== 'undefined' && activeChadId) {
-      const activeChad = chadsData.find(c => c.id === activeChadId);
-      if (activeChad) {
-        const votesElem = document.getElementById("modalStatVotes");
-        if (votesElem) votesElem.innerText = activeChad.votes;
+    // 3. Nasłuchiwanie odblokowania pozycji 16-20 po resecie
+    db.ref('revealed16to20').on('value', function(snapshot) {
+      if (snapshot.val() === true) {
+        const idsToReveal = ["chad_16", "chad_17", "chad_18", "chad_19", "chad_20"];
+        chadsData.forEach(chad => {
+          if (idsToReveal.includes(chad.id)) {
+            chad.locked = false;
+          }
+        });
+        renderRankings();
       }
-    }
-  }, function(error) {
-    console.error("Błąd odczytu głosów z Firebase Realtime Database:", error);
-  });
+    });
     
     
     
@@ -1934,7 +1942,7 @@ function deleteComment(postId, commentId) {
         alert("Błąd zapisu do Firebase: " + err.message);
       });
         }
-        2
+        
     
 
     function triggerOwnerReset() {
