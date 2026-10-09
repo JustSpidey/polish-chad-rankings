@@ -2119,57 +2119,40 @@ function applyTimerToButton(lastVoteTime) {
 }
 
   // Oddawanie głosu z blokadą po adresie IP
-  async function castVote() {
-    if (!activeChadId) return;
-    const chad = chadsData.find(c => c.id === activeChadId);
-    if (!chad || chad.locked) return;
+  voteRef.once('value').then(async snapshot => {
+  const lastVoteTime = snapshot.val() || 0;
+  const now = Date.now();
 
-    const btn = document.getElementById("btnVote");
-    if (btn) btn.disabled = true;
-
-    const ipKey = await getUserIp();
-
-    if (!ipKey) {
-      alert(currentLang === "pl" ? "Błąd weryfikacji połączenia. Spróbuj ponownie za chwilę." : "IP verification error.");
-      if (btn) btn.disabled = false;
+  if (now - lastVoteTime >= VOTE_COOLDOWN) {
+    try {
+      await voteRef.set(now); // jeśli reguły odrzucą, wpadnie do catch
+    } catch (e) {
+      console.error("Zapis głosu odrzucony:", e);
+      updateVoteButtonState(activeChadId);
       return;
     }
 
-    const voteRef = db.ref('ipVotes/' + ipKey + '/' + activeChadId);
+    localStorage.setItem(getStoredVoteKey(activeChadId), now.toString());
 
-    voteRef.once('value').then(snapshot => {
-      const lastVoteTime = snapshot.val() || 0;
-      const now = Date.now();
-
-      if (now - lastVoteTime >= VOTE_COOLDOWN) {
-        // Zapisujemy nowy czas głosu dla tego IP w Firebase
-        voteRef.set(now);
-
-        // Zapis lokalny jako dodatkowe zabezpieczenie
-        localStorage.setItem(getStoredVoteKey(activeChadId), now.toString());
-
-        // Transakcja zwiększająca licznik w Firebase
-        db.ref('votes/' + activeChadId).transaction(function(c) {
-          return (c || 0) + 1;
-        }, function(error, committed, snapshot) {
-          if (committed && snapshot) {
-            const newCount = snapshot.val();
-            if (typeof newCount === 'number') {
-              chad.votes = newCount;
-              const votesElem = document.getElementById("modalStatVotes");
-              if (votesElem) votesElem.innerText = chad.votes;
-            }
+    db.ref('votes/' + activeChadId).transaction(c => (c || 0) + 1,
+      function(error, committed, snap) {
+        if (committed && snap) {
+          const newCount = snap.val();
+          if (typeof newCount === 'number') {
+            chad.votes = newCount;
+            const el = document.getElementById("modalStatVotes");
+            if (el) el.innerText = chad.votes;
           }
-          updateVoteButtonState(activeChadId);
-        });
-      } else {
+        }
         updateVoteButtonState(activeChadId);
-      }
-    }).catch(err => {
-      console.error("Błąd podczas głosowania:", err);
-      if (btn) btn.disabled = false;
-    });
+      });
+  } else {
+    updateVoteButtonState(activeChadId);
   }
+}).catch(err => {
+  console.error("Błąd podczas głosowania:", err);
+  if (btn) btn.disabled = false;
+});
     
     
     
