@@ -2119,40 +2119,53 @@ function applyTimerToButton(lastVoteTime) {
 }
 
   // Oddawanie głosu z blokadą po adresie IP
-  voteRef.once('value').then(async snapshot => {
-  const lastVoteTime = snapshot.val() || 0;
-  const now = Date.now();
+async function castVote() {
+  if (!activeChadId) return;
+  const chad = chadsData.find(c => c.id === activeChadId);
+  if (!chad || chad.locked) return;
 
-  if (now - lastVoteTime >= VOTE_COOLDOWN) {
-    try {
-      await voteRef.set(now); // jeśli reguły odrzucą, wpadnie do catch
-    } catch (e) {
-      console.error("Zapis głosu odrzucony:", e);
+  const btn = document.getElementById("btnVote");
+  if (btn) btn.disabled = true;
+
+  const ipKey = await getUserIp();
+  if (!ipKey) {
+    alert(currentLang === "pl" ? "Błąd weryfikacji połączenia. Spróbuj ponownie za chwilę." : "IP verification error.");
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  const voteRef = db.ref('ipVotes/' + ipKey + '/' + activeChadId);
+
+  try {
+    const snapshot = await voteRef.once('value');
+    const lastVoteTime = snapshot.val() || 0;
+    const now = Date.now();
+
+    if (now - lastVoteTime < VOTE_COOLDOWN) {
       updateVoteButtonState(activeChadId);
       return;
     }
 
+    // Jeśli reguły odrzucą zapis, wpadnie do catch i licznik nie wzrośnie
+    await voteRef.set(now);
+
     localStorage.setItem(getStoredVoteKey(activeChadId), now.toString());
 
-    db.ref('votes/' + activeChadId).transaction(c => (c || 0) + 1,
-      function(error, committed, snap) {
-        if (committed && snap) {
-          const newCount = snap.val();
-          if (typeof newCount === 'number') {
-            chad.votes = newCount;
-            const el = document.getElementById("modalStatVotes");
-            if (el) el.innerText = chad.votes;
-          }
-        }
-        updateVoteButtonState(activeChadId);
-      });
-  } else {
+    await db.ref('votes/' + activeChadId).transaction(c => (c || 0) + 1);
+
+    const snap = await db.ref('votes/' + activeChadId).once('value');
+    const newCount = snap.val();
+    if (typeof newCount === 'number') {
+      chad.votes = newCount;
+      const el = document.getElementById("modalStatVotes");
+      if (el) el.innerText = chad.votes;
+    }
+  } catch (err) {
+    console.error("Błąd podczas głosowania:", err);
+  } finally {
     updateVoteButtonState(activeChadId);
   }
-}).catch(err => {
-  console.error("Błąd podczas głosowania:", err);
-  if (btn) btn.disabled = false;
-});
+}
     
     
     
