@@ -121,6 +121,7 @@ function computeReset(chadsData, state, consts, now, tsValue) {
     prevRankings,
     aura: newAura,
     weekId: newWeekId,
+    weekNo: n,
     currentWeek: weekKey(now),
     resetVersion: now.getTime(),
     revealed16to20: true,
