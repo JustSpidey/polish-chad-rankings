@@ -73,11 +73,73 @@ const round1 = x => Math.round(x * 10) / 10;
 const weekNum = k => { const n = parseInt(String(k).replace(/^w/, ''), 10); return isNaN(n) ? null : n; };
 
 // ---------- logika resetu (czysta funkcja, bez dostępu do bazy) ----------
+function scoreTips(tips, res) {
+  const uids = Object.keys(tips || {}), total = uids.length, out = {};
+  const KEYS = ['top', 'riser', 'faller'];
+  const cnt = { top: {}, riser: {}, faller: {} };
+  uids.forEach(function(u) {
+    const t = tips[u] || {};
+    KEYS.forEach(function(k) { if (typeof t[k] === 'string') cnt[k][t[k]] = (cnt[k][t[k]] || 0) + 1; });
+  });
+  uids.forEach(function(u) {
+    const t = tips[u] || {};
+    const r = { pts: 0, top: 0, riser: 0, faller: 0, picks: {} };
+    KEYS.forEach(function(k) {
+      if (typeof t[k] !== 'string') return;
+      r.picks[k] = t[k];
+      const win = k === 'top' ? (res.top ? [res.top] : []) : (res[k] || []);
+      if (win.indexOf(t[k]) >= 0) {
+        r[k] = 1;
+        r.pts += Math.min(40, Math.max(10, Math.round(10 * total / cnt[k][t[k]])));
+      }
+    });
+    out[u] = r;
+  });
+  return out;
+}
+function tipResults(ids, oldRanks, newRankings, wasLocked, topId) {
+  const changes = {};
+  let mx = -Infinity, mn = Infinity;
+  ids.forEach(function(id) {
+    if (wasLocked[id]) return;
+    const ch = oldRanks[id] - newRankings[id];
+    changes[id] = ch;
+    if (ch > mx) mx = ch;
+    if (ch < mn) mn = ch;
+  });
+  const res = { top: topId || null, riser: [], faller: [] };
+  Object.keys(changes).forEach(function(id) {
+    if (mx > 0 && changes[id] === mx) res.riser.push(id);
+    if (mn < 0 && changes[id] === mn) res.faller.push(id);
+  });
+  return res;
+}
+function compactResult(res) {
+  const o = { top: res.top };
+  if (res.riser.length) o.riser = res.riser;
+  if (res.faller.length) o.faller = res.faller;
+  return o;
+}
+function tipUpdates(scored, board, nickOf, newWeekId, upd) {
+  Object.keys(scored).forEach(function(u) {
+    const r = scored[u], prev = board[u] || {};
+    upd['tipBoard/' + u] = {
+      nick: String(nickOf(u) || prev.nick || 'user').slice(0, 40),
+      pts: (Number(prev.pts) || 0) + r.pts,
+      rounds: (Number(prev.rounds) || 0) + 1,
+      hits: (Number(prev.hits) || 0) + r.top + r.riser + r.faller
+    };
+    upd['tipLast/' + u] = { w: newWeekId, pts: r.pts, top: r.top, riser: r.riser, faller: r.faller, picks: r.picks };
+  });
+}
+
 function computeReset(chadsData, state, consts, now, tsValue) {
   const { AURA_START, AURA_PER_RANK, DUEL_AURA_STEP, DUEL_AURA_CAP } = consts;
   const revealed = state.revealed16to20 === true;
   const savedRanks = state.rankings || {};
   const votesNow = state.votes || {}, duel = state.duelStats || {}, auraNow = state.aura || {};
+  const tipsNow = state.tips || {}, board = state.tipBoard || {}, profiles = state.profiles || {};
+  const oldW = state.weekId || 'w0';
 
   const chads = chadsData.map(c => ({
     id: c.id,
@@ -93,9 +155,12 @@ function computeReset(chadsData, state, consts, now, tsValue) {
   active.sort((a, b) => (voteOf(b.id) - voteOf(a.id)) || (a.oldRank - b.oldRank));
 
   const newRankings = {}, prevRankings = {}, deltas = {}, newAura = {}, votesMap = {};
+  const oldRanks = {}, wasLocked = {};
   active.forEach((c, i) => {
     const newRank = i + 1;
     newRankings[c.id] = newRank;
+    oldRanks[c.id] = c.oldRank;
+    wasLocked[c.id] = c.wasLocked;
     const wl = duel[c.id] || {};
     const duelNet = (Number(wl.w) || 0) - (Number(wl.l) || 0);
     const duelAura = Math.max(-DUEL_AURA_CAP, Math.min(DUEL_AURA_CAP, round1(duelNet * DUEL_AURA_STEP)));
@@ -128,8 +193,17 @@ function computeReset(chadsData, state, consts, now, tsValue) {
     votes: null,
     duelStats: null
   };
+  // Typer: punkty liczone tylko wtedy, gdy w tej rundzie w ogóle padły głosy.
+  let result = null;
+  if (topId && Object.keys(votesMap).length) {
+    const res = tipResults(active.map(c => c.id), oldRanks, newRankings, wasLocked, topId);
+    result = compactResult(res);
+    hist.result = result;
+    tipUpdates(scoreTips(tipsNow, res), board, u => (profiles[u] || {}).nick, newWeekId, updates);
+  }
+  updates['tips/' + oldW] = null;
   updates['history/' + newWeekId] = hist;
-  return { updates, summary: { newWeekId, winner: hist.winner || null, deltas, newRankings } };
+  return { updates, summary: { newWeekId, winner: hist.winner || null, deltas, newRankings, result } };
 }
 
 // ---------- uruchomienie ----------
@@ -153,10 +227,11 @@ async function main() {
   admin.initializeApp({ credential: admin.credential.cert(JSON.parse(sa)), databaseURL: dbUrl });
   const db = admin.database();
 
-  const names = ['votes', 'duelStats', 'aura', 'weekId', 'rankings', 'revealed16to20', 'history'];
+  const names = ['votes', 'duelStats', 'aura', 'weekId', 'rankings', 'revealed16to20', 'history', 'tipBoard', 'profiles'];
   const snaps = await Promise.all(names.map(n => db.ref(n).once('value')));
   const state = {};
   names.forEach((n, i) => { state[n] = snaps[i].val(); });
+  state.tips = (await db.ref('tips/' + (state.weekId || 'w0')).once('value')).val() || {};
 
   // Ochrona przed podwójnym resetem (np. gdy właściciel kliknął przycisk wcześniej).
   const lastTs = Math.max(0, ...Object.values(state.history || {}).map(h => Number(h && h.ts) || 0));
