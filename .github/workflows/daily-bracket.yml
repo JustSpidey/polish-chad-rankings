@@ -1,0 +1,36 @@
+name: Turniej - koniec rundy
+
+on:
+  schedule:
+    - cron: '20 4 * * *'
+    - cron: '50 5 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Tryb próbny (nic nie zapisuje)'
+        type: boolean
+        default: true
+      force:
+        description: 'Zakończ rundę teraz, nawet jeśli czas nie minął'
+        type: boolean
+        default: false
+
+concurrency:
+  group: daily-bracket
+  cancel-in-progress: false
+
+jobs:
+  bracket:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save firebase-admin@12
+      - run: node scripts/bracket-daily.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_DATABASE_URL: https://polish-chad-rankings-default-rtdb.europe-west1.firebasedatabase.app
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force || 'false' }}

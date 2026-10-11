@@ -1,0 +1,36 @@
+name: Codzienna Flash Sonda
+
+on:
+  schedule:
+    - cron: '10 4 * * *'
+    - cron: '40 5 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Tryb próbny (nic nie zapisuje)'
+        type: boolean
+        default: true
+      force:
+        description: 'Wymuś nową sondę nawet jeśli dzisiejsza już jest'
+        type: boolean
+        default: false
+
+concurrency:
+  group: daily-flash
+  cancel-in-progress: false
+
+jobs:
+  flash:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save firebase-admin@12
+      - run: node scripts/flash-daily.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_DATABASE_URL: https://polish-chad-rankings-default-rtdb.europe-west1.firebasedatabase.app
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force || 'false' }}
