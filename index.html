@@ -6288,7 +6288,7 @@ function resetFunUser() { funUid = null; flashRebind(); brRebind(); socialRebind
     }
 
     // ================= v18c: powiadomienia push (Firebase Cloud Messaging) =================
-    var VAPID_KEY = '';   // Firebase → Ustawienia projektu → Cloud Messaging → Web Push certificates → „Key pair” (długi ciąg znaków)
+    var VAPID_KEY = 'BHQ2NZ6qoyRltuOJOJzgKGRki3X2BT3C9xmtBRlZPjKjYGVoJkCbUEjFMZ6QE5qCg5Vr78uea0KDq45Zpk9c55g';   // Firebase → Ustawienia projektu → Cloud Messaging → Web Push certificates → „Key pair” (długi ciąg znaków)
     var PUSH_LS18 = 'pcr_push_tok', pushPrefs18 = {}, pushPrefsUid18 = null;
     function lsGet18(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
     function lsSet18(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
