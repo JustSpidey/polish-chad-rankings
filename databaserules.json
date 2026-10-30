@@ -1,0 +1,1256 @@
+{
+  "rules": {
+    ".write": "auth != null && auth.token.email === 'kplatek.2020@gmail.com' && auth.token.firebase.sign_in_provider === 'password'",
+    "rankings": {
+      ".read": true
+    },
+    "revealed16to20": {
+      ".read": true
+    },
+    "published_order": {
+      ".read": true
+    },
+    "last_reset_week": {
+      ".read": true
+    },
+    "resetVersion": {
+      ".read": true
+    },
+    "currentWeek": {
+      ".read": true
+    },
+    "roles": {
+      ".read": true,
+      "$uid": {
+        ".validate": "newData.val() === 'owner' || newData.val() === 'chad' || newData.val() === 'mod'"
+      }
+    },
+    "users": {
+      ".read": "auth != null && auth.token.email === 'kplatek.2020@gmail.com'",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous'",
+        ".validate": "newData.hasChildren(['email','nick']) && newData.child('email').val() === auth.token.email",
+        "email": {
+          ".validate": "newData.isString() && newData.val().length < 150"
+        },
+        "nick": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "posts": {
+      ".read": true,
+      "$postId": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.exists() && !newData.exists() && data.child('uid').val() === auth.uid))",
+        ".validate": "$postId.matches(/^[-A-Za-z0-9_]{1,40}$/) && newData.hasChildren(['author','uid','timestamp'])",
+        "uid": {
+          ".validate": "newData.isString() && newData.val().length < 100"
+        },
+        "author": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "text": {
+          ".validate": "newData.isString() && newData.val().length <= 3000"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber() && newData.val() <= now + 3600000"
+        },
+        "imageUrl": {
+          ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+        },
+        "userEmail": {
+          ".validate": "newData.isString() && data.exists() && newData.val() === data.val()"
+        },
+        "comments": {
+          "$cid": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.exists() && !newData.exists() && data.child('uid').val() === auth.uid))",
+            ".validate": "$cid.matches(/^[-A-Za-z0-9_]{1,40}$/) && newData.hasChildren(['author','uid','timestamp']) && newData.child('uid').val() === auth.uid",
+            "uid": {
+              ".validate": "newData.isString() && newData.val().length < 100"
+            },
+            "author": {
+              ".validate": "newData.isString() && newData.val().length <= 60"
+            },
+            "text": {
+              ".validate": "newData.isString() && newData.val().length <= 1000"
+            },
+            "timestamp": {
+              ".validate": "newData.isNumber() && newData.val() <= now + 3600000"
+            },
+            "imageUrl": {
+              ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+            },
+            "userEmail": {
+              ".validate": "newData.isString() && data.exists() && newData.val() === data.val()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "newsPosts": {
+      ".read": true,
+      "$postId": {
+        ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'chad' || root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'owner') && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.exists() && data.child('uid').val() === auth.uid))",
+        ".validate": "$postId.matches(/^[-A-Za-z0-9_]{1,40}$/) && newData.hasChildren(['uid','author','timestamp','origLang','pl','en']) && (!data.exists() || newData.child('uid').val() === data.child('uid').val())",
+        "uid": {
+          ".validate": "newData.isString() && newData.val().length < 100"
+        },
+        "author": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber() && newData.val() <= now + 3600000"
+        },
+        "editedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "archived": {
+          ".validate": "newData.val() === true"
+        },
+        "archivedBy": {
+          ".validate": "newData.isString() && newData.val().length < 100"
+        },
+        "origUid": {
+          ".validate": "newData.isString() && newData.val().length < 100"
+        },
+        "origLang": {
+          ".validate": "newData.val() === 'pl' || newData.val() === 'en'"
+        },
+        "imageUrl": {
+          ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+        },
+        "pl": {
+          ".validate": "newData.hasChildren(['title'])",
+          "title": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 150"
+          },
+          "desc": {
+            ".validate": "newData.isString() && newData.val().length <= 4000"
+          },
+          "caption": {
+            ".validate": "newData.isString() && newData.val().length <= 150"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "en": {
+          ".validate": "newData.hasChildren(['title'])",
+          "title": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 150"
+          },
+          "desc": {
+            ".validate": "newData.isString() && newData.val().length <= 4000"
+          },
+          "caption": {
+            ".validate": "newData.isString() && newData.val().length <= 150"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "breakingNews": {
+      ".read": true,
+      ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'chad' || root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'owner') && ((newData.exists() && newData.child('uid').val() === auth.uid) || (!newData.exists() && data.child('uid').val() === auth.uid))",
+      ".validate": "newData.hasChildren(['uid','author','timestamp','origLang','pl','en'])",
+      "uid": {
+        ".validate": "newData.isString() && newData.val().length < 100"
+      },
+      "author": {
+        ".validate": "newData.isString() && newData.val().length <= 60"
+      },
+      "timestamp": {
+        ".validate": "newData.isNumber() && newData.val() <= now + 3600000"
+      },
+      "editedAt": {
+        ".validate": "newData.isNumber()"
+      },
+      "archived": {
+        ".validate": "newData.val() === true"
+      },
+      "archivedBy": {
+        ".validate": "newData.isString() && newData.val().length < 100"
+      },
+      "origUid": {
+        ".validate": "newData.isString() && newData.val().length < 100"
+      },
+      "origLang": {
+        ".validate": "newData.val() === 'pl' || newData.val() === 'en'"
+      },
+      "imageUrl": {
+        ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+      },
+      "pl": {
+        ".validate": "newData.hasChildren(['title'])",
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 150"
+        },
+        "desc": {
+          ".validate": "newData.isString() && newData.val().length <= 4000"
+        },
+        "caption": {
+          ".validate": "newData.isString() && newData.val().length <= 150"
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "en": {
+        ".validate": "newData.hasChildren(['title'])",
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 150"
+        },
+        "desc": {
+          ".validate": "newData.isString() && newData.val().length <= 4000"
+        },
+        "caption": {
+          ".validate": "newData.isString() && newData.val().length <= 150"
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "$other": {
+        ".validate": false
+      }
+    },
+    "votes": {
+      ".read": true,
+      "$chad_id": {
+        ".write": "auth != null && $chad_id.matches(/^chad_[0-9]{1,3}$/) && ((newData.val() === (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().child('voteLog').child(auth.uid).child($chad_id).val() === now) || (auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && newData.val() === (data.exists() ? data.val() : 0) + 2 && newData.parent().parent().child('superLog').child(auth.uid).child('c').val() === $chad_id && newData.parent().parent().child('superLog').child(auth.uid).child('t').val() === now) || (auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && newData.val() === (data.exists() ? data.val() : 0) + 5 && newData.parent().parent().child('megaLog').child(auth.uid).child('c').val() === $chad_id && newData.parent().parent().child('megaLog').child(auth.uid).child('t').val() === now))",
+        ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1000000"
+      }
+    },
+    "voteLog": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$chad_id": {
+          ".write": "auth != null && auth.uid === $uid && (!data.exists() || now - data.val() >= 2880000)",
+          ".validate": "newData.val() === now"
+        }
+      }
+    },
+    "user_votes": {
+      ".read": true,
+      "$week": {
+        "$chad_id": {
+          "$vote_id": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $vote_id === auth.uid && !data.exists()",
+            ".validate": "newData.val() === true"
+          }
+        }
+      }
+    },
+    "aura": {
+      ".read": true
+    },
+    "prevRankings": {
+      ".read": true
+    },
+    "history": {
+      ".read": true
+    },
+    "weekId": {
+      ".read": true
+    },
+    "superLog": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && (!data.exists() || now - data.child('t').val() >= 86400000)",
+        ".validate": "newData.hasChildren(['c','t']) && newData.child('c').val().matches(/^chad_[0-9]{1,3}$/) && newData.child('t').val() === now",
+        "c": {
+          ".validate": "newData.isString()"
+        },
+        "t": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "megaLog": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && (!data.exists() || data.child('w').val() !== (root.child('weekId').exists() ? root.child('weekId').val() : 'w0'))",
+        ".validate": "newData.hasChildren(['c','w','t']) && newData.child('c').val().matches(/^chad_[0-9]{1,3}$/) && newData.child('w').val() === (root.child('weekId').exists() ? root.child('weekId').val() : 'w0') && newData.child('t').val() === now",
+        "c": {
+          ".validate": "newData.isString()"
+        },
+        "w": {
+          ".validate": "newData.isString()"
+        },
+        "t": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "userWeeks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$wk": {
+          ".write": "auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && !data.exists() && $wk.matches(/^w[0-9]{1,6}$/) && $wk === (root.child('weekId').exists() ? root.child('weekId').val() : 'w0') && (newData.parent().parent().parent().child('voteLog').child(auth.uid).child(newData.val()).val() === now || (newData.parent().parent().parent().child('superLog').child(auth.uid).child('c').val() === newData.val() && newData.parent().parent().parent().child('superLog').child(auth.uid).child('t').val() === now) || (newData.parent().parent().parent().child('megaLog').child(auth.uid).child('c').val() === newData.val() && newData.parent().parent().parent().child('megaLog').child(auth.uid).child('t').val() === now))",
+          ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+        }
+      }
+    },
+    "duelLog": {
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && (!data.exists() || now - data.child('t').val() >= 3000)",
+        ".validate": "newData.hasChildren(['w','l','t']) && newData.child('w').val().matches(/^chad_[0-9]{1,3}$/) && newData.child('l').val().matches(/^chad_[0-9]{1,3}$/) && newData.child('w').val() !== newData.child('l').val() && newData.child('t').val() === now",
+        "w": {
+          ".validate": "newData.isString()"
+        },
+        "l": {
+          ".validate": "newData.isString()"
+        },
+        "t": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "duelStats": {
+      ".read": true,
+      "$chad_id": {
+        "w": {
+          ".write": "auth != null && $chad_id.matches(/^chad_[0-9]{1,3}$/) && newData.val() === (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().parent().child('duelLog').child(auth.uid).child('w').val() === $chad_id && newData.parent().parent().parent().child('duelLog').child(auth.uid).child('t').val() === now",
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10000000"
+        },
+        "l": {
+          ".write": "auth != null && $chad_id.matches(/^chad_[0-9]{1,3}$/) && newData.val() === (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().parent().child('duelLog').child(auth.uid).child('l').val() === $chad_id && newData.parent().parent().parent().child('duelLog').child(auth.uid).child('t').val() === now",
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10000000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "weekNo": {
+      ".read": true
+    },
+    "profiles": {
+      ".read": true,
+      "$uid": {
+        "nick": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && ((auth.uid === $uid && !newData.exists() && newData.parent().parent().parent().child('deletedAcc').child($uid).val() === now) || (auth.uid === $uid && !root.child('deletedAcc').child($uid).exists() && (!data.exists() || newData.val() === data.val() || (newData.parent().child('nickAt').val() === now && (!data.parent().child('nickAt').exists() || now - data.parent().child('nickAt').val() >= 604800000)))) || (root.child('roles').child(auth.uid).val() === 'mod' && root.child('roles').child($uid).val() !== 'mod' && root.child('roles').child($uid).val() !== 'owner' && newData.exists() && newData.val().matches(/^User_[a-z0-9]{5}$/)))",
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+        },
+        "bio": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && (auth.uid === $uid || (root.child('roles').child(auth.uid).val() === 'mod' && root.child('roles').child($uid).val() !== 'mod' && root.child('roles').child($uid).val() !== 'owner' && !newData.exists()))",
+          ".validate": "newData.isString() && newData.val().length <= 160"
+        },
+        "avatar": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && (auth.uid === $uid || (root.child('roles').child(auth.uid).val() === 'mod' && root.child('roles').child($uid).val() !== 'mod' && root.child('roles').child($uid).val() !== 'owner' && !newData.exists()))",
+          ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+        },
+        "banner": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && (auth.uid === $uid || (root.child('roles').child(auth.uid).val() === 'mod' && root.child('roles').child($uid).val() !== 'mod' && root.child('roles').child($uid).val() !== 'owner' && !newData.exists()))",
+          ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+        },
+        "joined": {
+          ".write": "(auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && auth.uid === $uid && !newData.exists() && newData.parent().parent().parent().child('deletedAcc').child($uid).val() === now) || (auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && !data.exists())",
+          ".validate": "newData.val() === now"
+        },
+        "streak": {
+          ".write": "(auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && auth.uid === $uid && !newData.exists() && newData.parent().parent().parent().child('deletedAcc').child($uid).val() === now) || (auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && newData.parent().parent().parent().child('userWeeks').child(auth.uid).child((root.child('weekId').exists() ? root.child('weekId').val() : 'w0')).exists() && newData.child('last').val() === (root.child('weekNo').exists() ? root.child('weekNo').val() : 0) && ((!data.exists() && newData.child('count').val() === 1) || (data.exists() && data.child('last').val() === (root.child('weekNo').exists() ? root.child('weekNo').val() : 0) - 1 && newData.child('count').val() === data.child('count').val() + 1) || (data.exists() && data.child('last').val() < (root.child('weekNo').exists() ? root.child('weekNo').val() : 0) - 1 && newData.child('count').val() === 1)))",
+          ".validate": "newData.hasChildren(['count','last'])",
+          "count": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000"
+          },
+          "last": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "flash": {
+          ".write": "(auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && auth.uid === $uid && !newData.exists() && newData.parent().parent().parent().child('deletedAcc').child($uid).val() === now) || (auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid && newData.child('t').val() === now && newData.child('e').val() === root.child('flash').child('current').child('e').val() && newData.parent().parent().parent().child('flashLog').child(root.child('flash').child('current').child('id').val()).child(auth.uid).child('t').val() === now)",
+          ".validate": "newData.hasChildren(['t','e'])",
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "e": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 8"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "nickAt": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && ((auth.uid === $uid && newData.exists()) || (auth.uid === $uid && !newData.exists() && newData.parent().parent().parent().child('deletedAcc').child($uid).val() === now) || (root.child('roles').child(auth.uid).val() === 'mod' && root.child('roles').child($uid).val() !== 'mod' && root.child('roles').child($uid).val() !== 'owner' && !newData.exists()))",
+          ".validate": "newData.val() === now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "tips": {
+      ".read": "auth != null && auth.token.email === 'kplatek.2020@gmail.com'",
+      "$wk": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $wk === (root.child('weekId').exists() ? root.child('weekId').val() : 'w0') && ((now - now % 86400000) / 86400000 + 4) % 7 >= 1 && ((now - now % 86400000) / 86400000 + 4) % 7 <= 4",
+          ".validate": "newData.hasChildren(['top','riser','faller','t']) && newData.child('t').val() === now",
+          "top": {
+            ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+          },
+          "riser": {
+            ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+          },
+          "faller": {
+            ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "tipBoard": {
+      ".read": true,
+      ".indexOn": [
+        "pts"
+      ],
+      "$uid": {
+        ".validate": "newData.hasChildren(['nick','pts','rounds','hits'])",
+        "nick": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "pts": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "rounds": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "hits": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "$other": {
+          ".validate": false
+        },
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && auth.uid === $uid && !newData.exists() && newData.parent().parent().child('deletedAcc').child($uid).val() === now"
+      }
+    },
+    "tipLast": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['w','pts','top','riser','faller'])",
+        "w": {
+          ".validate": "newData.isString()"
+        },
+        "pts": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "top": {
+          ".validate": "newData.val() === 0 || newData.val() === 1"
+        },
+        "riser": {
+          ".validate": "newData.val() === 0 || newData.val() === 1"
+        },
+        "faller": {
+          ".validate": "newData.val() === 0 || newData.val() === 1"
+        },
+        "picks": {
+          "top": {
+            ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+          },
+          "riser": {
+            ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+          },
+          "faller": {
+            ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "habit": {
+      ".read": true,
+      ".indexOn": [
+        "pts"
+      ],
+      "$uid": {
+        ".write": "(auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && auth.uid === $uid && !newData.exists() && newData.parent().parent().child('deletedAcc').child($uid).val() === now) || (auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && newData.child('last').val() === (((now + 3600000) - (now + 3600000) % 86400000) / 86400000) && (!data.exists() || data.child('last').val() < (((now + 3600000) - (now + 3600000) % 86400000) / 86400000)) && ((data.exists() && data.child('last').val() === (((now + 3600000) - (now + 3600000) % 86400000) / 86400000) - 1) ? newData.child('streak').val() === data.child('streak').val() + 1 : newData.child('streak').val() === 1) && newData.child('total').val() === (data.exists() ? data.child('total').val() : 0) + 1 && newData.child('pts').val() === (data.exists() ? data.child('pts').val() : 0) + (newData.child('streak').val() % 7 === 0 ? 40 : 10))",
+        ".validate": "newData.hasChildren(['last','streak','total','pts'])",
+        "last": {
+          ".validate": "newData.isNumber()"
+        },
+        "streak": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000"
+        },
+        "total": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000"
+        },
+        "pts": {
+          ".validate": "newData.isNumber() && newData.val() >= 10"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "quest": {
+      ".read": true,
+      ".validate": "newData.hasChildren(['pl','en'])",
+      "pl": {
+        ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120"
+      },
+      "en": {
+        ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120"
+      },
+      "ts": {
+        ".validate": "newData.isNumber()"
+      },
+      "$other": {
+        ".validate": false
+      }
+    },
+    "flash": {
+      ".read": true,
+      "current": {
+        ".validate": "newData.hasChildren(['id','ts','end','e','pl','en'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().matches(/^[pc][0-9]{1,15}$/)"
+        },
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "end": {
+          ".validate": "newData.isNumber()"
+        },
+        "e": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 8"
+        },
+        "pl": {
+          ".validate": "newData.hasChildren(['q','a','b'])",
+          "q": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 140"
+          },
+          "a": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "b": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "c": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "d": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "en": {
+          ".validate": "newData.hasChildren(['q','a','b'])",
+          "q": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 140"
+          },
+          "a": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "b": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "c": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "d": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "$other": {
+        ".validate": false
+      }
+    },
+    "flashPrev": {
+      ".read": true,
+      ".validate": "newData.hasChildren(['id','e','pl','en','counts'])",
+      "id": {
+        ".validate": "newData.isString() && newData.val().matches(/^[pc][0-9]{1,15}$/)"
+      },
+      "e": {
+        ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 8"
+      },
+      "ts": {
+        ".validate": "newData.isNumber()"
+      },
+      "pl": {
+        ".validate": "newData.hasChildren(['q','a','b'])",
+        "q": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 140"
+        },
+        "a": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+        },
+        "b": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+        },
+        "c": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+        },
+        "d": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "en": {
+        ".validate": "newData.hasChildren(['q','a','b'])",
+        "q": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 140"
+        },
+        "a": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+        },
+        "b": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+        },
+        "c": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+        },
+        "d": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "counts": {
+        "a": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000000"
+        },
+        "b": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000000"
+        },
+        "c": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000000"
+        },
+        "d": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "$other": {
+        ".validate": false
+      }
+    },
+    "flashCounts": {
+      ".read": true,
+      "$pid": {
+        "$o": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $o.matches(/^[a-d]$/) && $pid === root.child('flash').child('current').child('id').val() && now < root.child('flash').child('current').child('end').val() && root.child('flash').child('current').child('pl').child($o).exists() && newData.val() === (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().parent().child('flashLog').child($pid).child(auth.uid).child('o').val() === $o && newData.parent().parent().parent().child('flashLog').child($pid).child(auth.uid).child('t').val() === now",
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000000"
+        }
+      }
+    },
+    "flashLog": {
+      "$pid": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid && !data.exists() && $pid === root.child('flash').child('current').child('id').val() && now < root.child('flash').child('current').child('end').val() && root.child('flash').child('current').child('pl').child(newData.child('o').val()).exists()",
+          ".validate": "newData.hasChildren(['o','t'])",
+          "o": {
+            ".validate": "newData.isString() && newData.val().matches(/^[a-d]$/)"
+          },
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "bracket": {
+      ".read": true,
+      "current": {
+        ".validate": "newData.hasChildren(['id','ts','rd','rEnd','players','matches'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().matches(/^b[0-9]{1,15}$/)"
+        },
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "rd": {
+          ".validate": "newData.isString() && newData.val().matches(/^r[0-3]$/)"
+        },
+        "rEnd": {
+          ".validate": "newData.isNumber()"
+        },
+        "champion": {
+          ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+        },
+        "players": {
+          ".validate": "newData.hasChildren(['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16'])",
+          "$p": {
+            ".validate": "$p.matches(/^p([1-9]|1[0-6])$/) && newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+          }
+        },
+        "matches": {
+          "$r": {
+            "$m": {
+              ".validate": "$m.matches(/^m[0-7]$/) && newData.hasChildren(['a','b'])",
+              "a": {
+                ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+              },
+              "b": {
+                ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+              },
+              "$other": {
+                ".validate": false
+              }
+            },
+            ".validate": "$r.matches(/^r[0-3]$/)"
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "$other": {
+        ".validate": false
+      }
+    },
+    "bracketCounts": {
+      ".read": true,
+      "$bid": {
+        "$r": {
+          "$m": {
+            "$s": {
+              ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $bid === root.child('bracket').child('current').child('id').val() && $r === root.child('bracket').child('current').child('rd').val() && !root.child('bracket').child('current').child('champion').exists() && now < root.child('bracket').child('current').child('rEnd').val() && root.child('bracket').child('current').child('matches').child($r).child($m).exists() && $s.matches(/^[ab]$/) && newData.val() === (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().parent().parent().parent().child('bracketLog').child($bid).child(auth.uid).child($r).child($m).child('s').val() === $s && newData.parent().parent().parent().parent().parent().child('bracketLog').child($bid).child(auth.uid).child($r).child($m).child('t').val() === now",
+              ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000000"
+            }
+          }
+        }
+      }
+    },
+    "bracketLog": {
+      "$bid": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$r": {
+            "$m": {
+              ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $bid === root.child('bracket').child('current').child('id').val() && $r === root.child('bracket').child('current').child('rd').val() && !root.child('bracket').child('current').child('champion').exists() && now < root.child('bracket').child('current').child('rEnd').val() && root.child('bracket').child('current').child('matches').child($r).child($m).exists() && auth.uid === $uid && !data.exists()",
+              ".validate": "newData.hasChildren(['s','t'])",
+              "s": {
+                ".validate": "newData.isString() && newData.val().matches(/^[ab]$/)"
+              },
+              "t": {
+                ".validate": "newData.val() === now"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "bracketHistory": {
+      ".read": true,
+      "$bid": {
+        ".validate": "$bid.matches(/^b[0-9]{1,15}$/) && newData.hasChildren(['ts','champion'])",
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "end": {
+          ".validate": "newData.isNumber()"
+        },
+        "champion": {
+          ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+        },
+        "rounds": {
+          ".validate": "newData.hasChildren()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "friends": {
+      "$u": {
+        ".read": "auth != null && auth.uid === $u",
+        "$f": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $u !== $f && ((auth.uid === $u && ((!data.exists() && newData.exists() && root.child('friendReq').child($u).child($f).exists() && !root.child('blocks').child($u).child($f).exists() && !root.child('blocks').child($f).child($u).exists() && newData.child('t').val() === now) || (data.exists() && !newData.exists()))) || (auth.uid === $f && ((!data.exists() && newData.exists() && root.child('friendReq').child($f).child($u).exists() && !root.child('blocks').child($u).child($f).exists() && !root.child('blocks').child($f).child($u).exists() && newData.parent().parent().child($f).child($u).exists() && newData.child('t').val() === now) || (data.exists() && !newData.exists() && !newData.parent().parent().child($f).child($u).exists()))))",
+          ".validate": "newData.hasChildren(['t'])",
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "friendReq": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$from": {
+          ".read": "auth != null && (auth.uid === $to || auth.uid === $from)",
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && (auth.uid === $to || auth.uid === $from) && (!newData.exists() || (auth.uid === $from && $to !== $from && !data.exists() && newData.child('t').val() === now && !root.child('friends').child($from).child($to).exists() && !root.child('blocks').child($to).child($from).exists() && !root.child('blocks').child($from).child($to).exists() && !root.child('dmBan').child($from).exists() && newData.parent().parent().parent().child('rate').child($from).child('req').val() === now))",
+          ".validate": "newData.hasChildren(['t'])",
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "rate": {
+      "$uid": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid",
+        "req": {
+          ".validate": "newData.val() === now && (!data.exists() || now - data.val() >= 10000)"
+        },
+        "msg": {
+          ".validate": "newData.val() === now && (!data.exists() || now - data.val() >= 1500)"
+        },
+        "$other": {
+          ".validate": false
+        },
+        "glow": {
+          ".validate": "newData.val() === now && (!data.exists() || now - data.val() >= 120000)"
+        },
+        "gcom": {
+          ".validate": "newData.val() === now && (!data.exists() || now - data.val() >= 8000)"
+        }
+      }
+    },
+    "blocks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$b": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid && $b !== $uid && $b.length <= 128",
+          ".validate": "newData.hasChildren(['t'])",
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "dm": {
+      "$u": {
+        "$o": {
+          ".read": "auth != null && (auth.uid === $u || ((root.child('roles').child(auth.uid).val() === 'mod' || (auth.token.email === 'kplatek.2020@gmail.com' && auth.token.firebase.sign_in_provider === 'password')) && root.child('dmReports').child($u + '_' + $o).exists()))",
+          "$mid": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && (auth.uid === $u || auth.uid === $o) && $u !== $o && ((!data.exists() && newData.child('from').val() === auth.uid && root.child('friends').child($u).child($o).exists() && root.child('friends').child($o).child($u).exists() && !root.child('blocks').child(auth.uid === $u ? $o : $u).child(auth.uid).exists() && !root.child('dmBan').child(auth.uid).exists() && newData.parent().parent().parent().child($u).child($o).child($mid).exists() && newData.parent().parent().parent().child($o).child($u).child($mid).exists() && newData.child('text').val() === newData.parent().parent().parent().child($o).child($u).child($mid).child('text').val() && newData.child('from').val() === newData.parent().parent().parent().child($o).child($u).child($mid).child('from').val() && newData.child('t').val() === newData.parent().parent().parent().child($o).child($u).child($mid).child('t').val() && newData.child('img').val() === newData.parent().parent().parent().child($o).child($u).child($mid).child('img').val() && newData.parent().parent().parent().parent().child('rate').child(auth.uid).child('msg').val() === now) || (auth.uid === $u && data.exists() && !newData.exists()))",
+            ".validate": "$mid.matches(/^[-A-Za-z0-9_]{1,40}$/) && newData.hasChildren(['from','t']) && (newData.child('text').exists() || newData.child('img').exists())",
+            "from": {
+              ".validate": "newData.isString() && newData.val().length <= 128"
+            },
+            "text": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 500"
+            },
+            "img": {
+              ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+            },
+            "t": {
+              ".validate": "newData.val() === now"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "dmIdx": {
+      "$u": {
+        ".read": "auth != null && auth.uid === $u",
+        "$o": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $u !== $o && (auth.uid === $u || (auth.uid === $o && root.child('friends').child($u).child($o).exists() && root.child('friends').child($o).child($u).exists() && !root.child('blocks').child($u).child($o).exists() && !root.child('dmBan').child($o).exists() && newData.child('seen').val() === false && newData.child('t').val() === now))",
+          ".validate": "newData.hasChildren(['t','seen'])",
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "seen": {
+            ".validate": "newData.isBoolean()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "dmReports": {
+      ".read": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || (auth.token.email === 'kplatek.2020@gmail.com' && auth.token.firebase.sign_in_provider === 'password'))",
+      "$rid": {
+        ".read": "auth != null && data.child('by').val() === auth.uid",
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid && newData.child('against').val() !== auth.uid && $rid === auth.uid + '_' + newData.child('against').val() && root.child('dm').child(auth.uid).child(newData.child('against').val()).exists()) || (!newData.exists() && root.child('roles').child(auth.uid).val() === 'mod'))",
+        ".validate": "newData.hasChildren(['by','against','t','reason'])",
+        "by": {
+          ".validate": "newData.isString() && newData.val().length <= 128"
+        },
+        "against": {
+          ".validate": "newData.isString() && newData.val().length <= 128"
+        },
+        "t": {
+          ".validate": "newData.val() === now"
+        },
+        "reason": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 200"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "dmBan": {
+      ".read": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || (auth.token.email === 'kplatek.2020@gmail.com' && auth.token.firebase.sign_in_provider === 'password'))",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && root.child('roles').child(auth.uid).val() === 'mod' && $uid !== auth.uid && root.child('roles').child($uid).val() !== 'owner' && root.child('roles').child($uid).val() !== 'mod'",
+        ".validate": "newData.hasChildren(['t','by'])",
+        "t": {
+          ".validate": "newData.val() === now"
+        },
+        "by": {
+          ".validate": "newData.val() === auth.uid"
+        },
+        "reason": {
+          ".validate": "newData.isString() && newData.val().length <= 200"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "chadLinks": {
+      ".read": true,
+      "$cid": {
+        ".validate": "$cid.matches(/^chad_[0-9]{1,3}$/) && newData.hasChildren(['uid'])",
+        "uid": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 128"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "chadSocial": {
+      ".read": true,
+      "$cid": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $cid.matches(/^chad_[0-9]{1,3}$/) && root.child('roles').child(auth.uid).exists() && root.child('chadLinks').child($cid).child('uid').val() === auth.uid",
+        ".validate": "newData.hasChildren(['tiktok'])",
+        "tiktok": {
+          ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9._]{1,40}$/)"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "glow": {
+      ".read": true,
+      ".indexOn": [
+        "ts",
+        "up"
+      ],
+      "$gid": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && ((!data.exists() && newData.exists() && newData.child('uid').val() === auth.uid && !newData.child('up').exists() && newData.parent().parent().child('rate').child(auth.uid).child('glow').val() === now) || (data.exists() && !newData.exists() && (data.child('uid').val() === auth.uid || root.child('roles').child(auth.uid).val() === 'mod')))",
+        ".validate": "$gid.matches(/^[-A-Za-z0-9_]{1,40}$/) && newData.hasChildren(['uid','title','before','after','ts'])",
+        "uid": {
+          ".validate": "newData.isString() && newData.val().length <= 128"
+        },
+        "author": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "title": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 80"
+        },
+        "dur": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 30"
+        },
+        "text": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 500"
+        },
+        "before": {
+          ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+        },
+        "after": {
+          ".validate": "newData.isString() && (newData.val().beginsWith('https://i.ibb.co/') || newData.val().beginsWith('https://i.ibb.co.com/')) && newData.val().length < 300"
+        },
+        "ts": {
+          ".validate": "newData.isNumber() && (data.exists() || newData.val() === now)"
+        },
+        "up": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && newData.val() === (data.exists() ? data.val() : 0) + 1 && root.child('glow').child($gid).exists() && root.child('glow').child($gid).child('uid').val() !== auth.uid && newData.parent().parent().parent().child('glowLog').child(auth.uid).child($gid).child('t').val() === now",
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "glowLog": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$gid": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid && !data.exists() && newData.exists() && root.child('glow').child($gid).exists() && root.child('glow').child($gid).child('uid').val() !== $uid",
+          ".validate": "newData.hasChildren(['t'])",
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "glowComments": {
+      ".read": true,
+      "$gid": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && !newData.exists() && !newData.parent().parent().child('glow').child($gid).exists() && (root.child('glow').child($gid).child('uid').val() === auth.uid || root.child('roles').child(auth.uid).val() === 'mod')",
+        "$cid": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && root.child('glow').child($gid).exists() && ((!data.exists() && newData.exists() && newData.child('uid').val() === auth.uid && newData.parent().parent().parent().child('rate').child(auth.uid).child('gcom').val() === now) || (data.exists() && !newData.exists() && (data.child('uid').val() === auth.uid || root.child('glow').child($gid).child('uid').val() === auth.uid || root.child('roles').child(auth.uid).val() === 'mod')))",
+          ".validate": "$cid.matches(/^[-A-Za-z0-9_]{1,40}$/) && newData.hasChildren(['uid','text','ts'])",
+          "uid": {
+            ".validate": "newData.isString() && newData.val().length <= 128"
+          },
+          "text": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 300"
+          },
+          "ts": {
+            ".validate": "newData.isNumber() && (data.exists() || newData.val() === now)"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "glowReports": {
+      ".read": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || (auth.token.email === 'kplatek.2020@gmail.com' && auth.token.firebase.sign_in_provider === 'password'))",
+      "$gid": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && root.child('roles').child(auth.uid).val() === 'mod' && !newData.exists()",
+        "$uid": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && ((!data.exists() && newData.exists() && auth.uid === $uid && root.child('glow').child($gid).exists()) || (!newData.exists() && root.child('roles').child(auth.uid).val() === 'mod'))",
+          ".validate": "newData.hasChildren(['t','reason'])",
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "reason": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 200"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "bans": {
+      ".read": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || (auth.token.email === 'kplatek.2020@gmail.com' && auth.token.firebase.sign_in_provider === 'password'))",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && root.child('roles').child(auth.uid).val() === 'mod' && root.child('roles').child($uid).val() !== 'mod' && root.child('roles').child($uid).val() !== 'owner'",
+        ".validate": "newData.hasChildren(['t','by','reason']) && newData.child('by').val() === auth.uid",
+        "t": {
+          ".validate": "newData.val() === now"
+        },
+        "by": {
+          ".validate": "newData.isString() && newData.val().length <= 128"
+        },
+        "reason": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 200"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "socialPoll": {
+      ".read": true,
+      "current": {
+        ".validate": "newData.hasChildren(['id','open','q','opts','t']) && newData.child('opts').child('a').exists() && newData.child('opts').child('b').exists()",
+        "id": {
+          ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9]{1,20}$/)"
+        },
+        "open": {
+          ".validate": "newData.isBoolean()"
+        },
+        "t": {
+          ".validate": "newData.isNumber()"
+        },
+        "q": {
+          ".validate": "newData.hasChildren(['pl','en'])",
+          "pl": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 140"
+          },
+          "en": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 140"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "opts": {
+          "$o": {
+            ".validate": "$o.matches(/^[a-d]$/) && newData.hasChildren(['pl','en'])",
+            "pl": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+            },
+            "en": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+            },
+            "chad": {
+              ".validate": "newData.isString() && newData.val().matches(/^chad_[0-9]{1,3}$/)"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "socialPollCounts": {
+      ".read": true,
+      "$pid": {
+        "$o": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && $pid === root.child('socialPoll').child('current').child('id').val() && root.child('socialPoll').child('current').child('open').val() === true && root.child('socialPoll').child('current').child('opts').child($o).exists() && newData.val() === (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().parent().child('socialPollLog').child($pid).child(auth.uid).child('o').val() === $o && newData.parent().parent().parent().child('socialPollLog').child($pid).child(auth.uid).child('t').val() === now",
+          ".validate": "$o.matches(/^[a-d]$/) && newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000000"
+        }
+      }
+    },
+    "socialPollLog": {
+      "$pid": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid && !data.exists() && $pid === root.child('socialPoll').child('current').child('id').val() && root.child('socialPoll').child('current').child('open').val() === true && root.child('socialPoll').child('current').child('opts').child(newData.child('o').val()).exists()",
+          ".validate": "newData.hasChildren(['o','t'])",
+          "o": {
+            ".validate": "newData.isString() && newData.val().matches(/^[a-d]$/)"
+          },
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "notifs": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".indexOn": [
+          "t"
+        ],
+        "$nid": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && ((!newData.exists() && data.exists() && auth.uid === $uid) || (!data.exists() && newData.exists() && $uid !== auth.uid && newData.child('from').val() === auth.uid && root.child('glow').child(newData.child('gid').val()).child('uid').val() === $uid && ((newData.child('type').val() === 'gu' && $nid === 'u_' + newData.child('gid').val() + '_' + auth.uid && newData.parent().parent().parent().child('glowLog').child(auth.uid).child(newData.child('gid').val()).child('t').val() === now) || (newData.child('type').val() === 'gc' && $nid === 'c_' + newData.child('cid').val() && newData.parent().parent().parent().child('glowComments').child(newData.child('gid').val()).child(newData.child('cid').val()).child('uid').val() === auth.uid && newData.parent().parent().parent().child('glowComments').child(newData.child('gid').val()).child(newData.child('cid').val()).child('ts').val() === now))))",
+          ".validate": "$nid.matches(/^[uc]_[-A-Za-z0-9_]{1,200}$/) && newData.hasChildren(['type','from','gid','t'])",
+          "type": {
+            ".validate": "newData.isString() && (newData.val() === 'gu' || newData.val() === 'gc')"
+          },
+          "from": {
+            ".validate": "newData.isString() && newData.val().length <= 128"
+          },
+          "gid": {
+            ".validate": "newData.isString() && newData.val().matches(/^[-A-Za-z0-9_]{1,40}$/)"
+          },
+          "cid": {
+            ".validate": "newData.isString() && newData.val().matches(/^[-A-Za-z0-9_]{1,40}$/)"
+          },
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "deletedAcc": {
+      "$uid": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && auth.uid === $uid && !data.exists() && root.child('roles').child(auth.uid).val() !== 'owner'",
+        ".validate": "newData.val() === now"
+      }
+    },
+    "pushTokens": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$tok": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid",
+          ".validate": "$tok.matches(/^[A-Za-z0-9_:-]{20,400}$/) && newData.hasChildren(['t','lang'])",
+          "t": {
+            ".validate": "newData.val() === now"
+          },
+          "lang": {
+            ".validate": "newData.val() === 'pl' || newData.val() === 'en'"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "pushPrefs": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid",
+        ".validate": "newData.hasChildren()",
+        "glow": {
+          ".validate": "newData.isBoolean()"
+        },
+        "social": {
+          ".validate": "newData.isBoolean()"
+        },
+        "weekly": {
+          ".validate": "newData.isBoolean()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
